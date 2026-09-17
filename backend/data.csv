@@ -1,0 +1,11 @@
+date,amount,merchant,category,id,type
+2026-03-01,300.0,Swiggy,Food,732e81b0,debit
+2026-03-05,500.0,Uber,Transport,cfd94599,debit
+2026-03-10,1500.0,Amazon,Shopping,7fda7228,debit
+2026-04-01,450.0,Swiggy,Food,8a7a9a67,debit
+2026-04-02,1200.0,Uber,Transport,4311925e,debit
+2026-04-03,2000.0,Amazon,Shopping,0ea74b8d,debit
+2026-04-04,300.0,Zomato,Food,0a57e03b,debit
+2026-04-05,1600.0,Electricity,Bills,ea70d5f8,debit
+2026-09-16,500.0,DMRC,Transport,d6e9ced8,debit
+2026-09-16,500.0,Naman,Transfer,f7baa0bc,credit
