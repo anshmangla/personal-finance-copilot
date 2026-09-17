@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fl_chart/fl_chart.dart';
+import '../services/export_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -470,6 +471,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: const Text('Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
         elevation: 0,
         actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.file_download),
+            onSelected: (value) async {
+              try {
+                if (value == 'csv') {
+                  await ExportService.exportCsv();
+                } else if (value == 'pdf') {
+                  await ExportService.exportPdf();
+                }
+              } catch (e) {
+                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 'csv', child: Text('Export as CSV')),
+              const PopupMenuItem(value: 'pdf', child: Text('Export as PDF')),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
@@ -490,6 +509,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Upcoming Bills Banner
+                if ((summaryData?['upcoming_reminders'] as List?)?.isNotEmpty ?? false)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 14),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.orange.shade300),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded, color: Colors.orange.shade800),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'You have ${(summaryData?['upcoming_reminders'] as List).length} upcoming bill(s) due soon.',
+                            style: TextStyle(color: Colors.orange.shade900, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                 // Month Selector Bar
                 if (availableMonths.isNotEmpty && _selectedMonth != null)
                   Container(

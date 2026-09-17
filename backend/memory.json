@@ -24,7 +24,11 @@
         "No major weekend overspending",
         "No major weekend overspending",
         "No major weekend overspending",
+        "No major weekend overspending",
         "No major weekend overspending"
     ],
-    "goals": []
+    "goals": [],
+    "budgets": {
+        "Food": 2000.0
+    }
 }

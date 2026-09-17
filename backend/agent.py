@@ -154,6 +154,28 @@ def add_goal_tool(goal: str):
     add_goal(goal)
     return f"Goal added: {goal}"
 
+@tool
+def subscriptions_tool(input_text: str = ""):
+    """Returns active subscriptions and upcoming bills"""
+    from subscription_manager import get_subscriptions_df, get_upcoming_reminders
+    df = get_subscriptions_df()
+    if df.empty:
+        return "No active subscriptions."
+    reminders = get_upcoming_reminders(14) # next 14 days
+    return f"Subscriptions: {df.to_dict(orient='records')}\nUpcoming in 14 days: {reminders}"
+
+@tool
+def check_budget_tool(input_text: str = ""):
+    """Returns the user's category budgets and checks if they are overspending in the current month."""
+    from utils import load_data, spending_alert
+    from memory_manager import get_budgets
+    df = load_data()
+    budgets = get_budgets()
+    if not budgets:
+        return "No budgets set yet."
+    alerts = spending_alert(df)
+    return f"Budgets: {budgets}\nStatus: {alerts}"
+
 # ---------------- TOOL LIST ---------------- #
 
 tools = [
@@ -167,7 +189,9 @@ tools = [
     summary_tool,
     insight_tool,
     recommendation_tool,
-    add_goal_tool
+    add_goal_tool,
+    subscriptions_tool,
+    check_budget_tool
 ]
 
 # ---------------- LLM ---------------- #
