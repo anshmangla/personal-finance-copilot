@@ -25,7 +25,17 @@ def add_goal(goal):
 
 def get_goals():
     memory = load_memory()
-    return memory["goals"]
+    return memory.get("goals", [])
+
+def delete_goal(index: int):
+    memory = load_memory()
+    goals = memory.get("goals", [])
+    if 0 <= index < len(goals):
+        removed = goals.pop(index)
+        memory["goals"] = goals
+        save_memory(memory)
+        return removed
+    return None
 
 def get_budgets():
     memory = load_memory()

@@ -41,9 +41,10 @@ def get_summary(df):
     category_breakdown = debits.groupby("category")["amount"].sum().to_dict() if not debits.empty else {}
 
     from subscription_manager import get_upcoming_reminders
-    from memory_manager import get_budgets
+    from memory_manager import get_budgets, get_goals
     upcoming_reminders = get_upcoming_reminders()
     budgets = get_budgets()
+    goals = get_goals()
 
     return {
         "total_spend": total_spend,
@@ -52,7 +53,8 @@ def get_summary(df):
         "category_breakdown": category_breakdown,
         "transactions": clean_df.to_dict(orient="records"),
         "upcoming_reminders": upcoming_reminders,
-        "budgets": budgets
+        "budgets": budgets,
+        "goals": goals
     }
 
 def monthly_spend(df):

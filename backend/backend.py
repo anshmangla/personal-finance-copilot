@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from transaction_manager import add_transaction as tm_add, edit_transaction as tm_edit, delete_transaction as tm_delete
 from subscription_manager import get_subscriptions_df, add_subscription, edit_subscription, delete_subscription
-from memory_manager import get_budgets, set_budget
+from memory_manager import get_budgets, set_budget, get_goals, add_goal, delete_goal
 from agent import ask_agent
 from utils import load_data, get_summary
 
@@ -53,6 +53,9 @@ class EditSubscriptionReq(BaseModel):
 class BudgetReq(BaseModel):
     category: str
     limit: float
+
+class GoalReq(BaseModel):
+    goal: str
 
 class ChatReq(BaseModel):
     query: str
@@ -114,6 +117,22 @@ def budgets():
 async def set_budget_endpoint(req: BudgetReq):
     budgets = set_budget(req.category, req.limit)
     return {"status": "success", "message": f"Budget set for {req.category}", "data": budgets}
+
+@app.get("/goals")
+def goals_endpoint():
+    return {"status": "success", "data": get_goals()}
+
+@app.post("/add_goal")
+def add_goal_endpoint(req: GoalReq):
+    add_goal(req.goal)
+    return {"status": "success", "message": "Goal added", "data": get_goals()}
+
+@app.delete("/delete_goal/{index}")
+def delete_goal_endpoint(index: int):
+    removed = delete_goal(index)
+    if removed is None:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    return {"status": "success", "message": "Goal deleted", "data": get_goals()}
 
 from fastapi.responses import FileResponse
 import os
