@@ -37,21 +37,25 @@ class _ChatScreenState extends State<ChatScreen> {
         Uri.parse('${ApiConfig.baseUrl}/chat'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'query': text}),
-      );
+      ).timeout(const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
-          _messages.add(ChatMessage(text: data['response'], isUser: false));
+          _messages.add(ChatMessage(text: data['response'] ?? 'No response received.', isUser: false));
         });
       } else {
         setState(() {
-          _messages.add(ChatMessage(text: 'Error connecting to the AI.', isUser: false));
+          _messages.add(ChatMessage(text: 'Server error (${response.statusCode}). Please check backend logs.', isUser: false));
         });
       }
     } catch (e) {
+      debugPrint('Chat error: $e');
       setState(() {
-        _messages.add(ChatMessage(text: 'Connection error.', isUser: false));
+        _messages.add(ChatMessage(
+          text: 'Connection timed out or failed. If Render was asleep, it may need 30-40 seconds to wake up. Please try again.',
+          isUser: false,
+        ));
       });
     } finally {
       setState(() {
