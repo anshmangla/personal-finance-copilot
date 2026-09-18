@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../widgets/budget_progress_bar.dart';
+import '../services/api_config.dart';
 
 class BudgetsScreen extends StatefulWidget {
   const BudgetsScreen({super.key});
@@ -29,7 +30,7 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
   Future<void> _fetchBudgetsAndSummary() async {
     setState(() => _isLoading = true);
     try {
-      final summaryRes = await http.get(Uri.parse('http://10.0.2.2:8000/summary'));
+      final summaryRes = await http.get(Uri.parse('${ApiConfig.baseUrl}/summary'));
       if (summaryRes.statusCode == 200) {
         final data = jsonDecode(summaryRes.body)['data'];
         
@@ -104,7 +105,7 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
                   
                   Navigator.pop(ctx);
                   await http.post(
-                    Uri.parse('http://10.0.2.2:8000/set_budget'),
+                    Uri.parse('${ApiConfig.baseUrl}/set_budget'),
                     headers: {'Content-Type': 'application/json'},
                     body: jsonEncode({'category': selectedCat, 'limit': limit}),
                   );

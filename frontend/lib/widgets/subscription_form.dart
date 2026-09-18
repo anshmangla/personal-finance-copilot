@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../services/api_config.dart';
 
 class SubscriptionForm extends StatefulWidget {
   final Map<String, dynamic>? subscription;
@@ -73,8 +74,8 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
 
     final isEditing = widget.subscription != null;
     final url = isEditing 
-        ? 'http://10.0.2.2:8000/edit_subscription' 
-        : 'http://10.0.2.2:8000/add_subscription';
+        ? '${ApiConfig.baseUrl}/edit_subscription' 
+        : '${ApiConfig.baseUrl}/add_subscription';
 
     final body = {
       if (isEditing) 'id': widget.subscription!['id'],

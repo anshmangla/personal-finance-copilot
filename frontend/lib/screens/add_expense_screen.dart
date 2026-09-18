@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../services/api_config.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({super.key});
@@ -80,7 +81,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/add_transaction'),
+        Uri.parse('${ApiConfig.baseUrl}/add_transaction'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'amount': amount,

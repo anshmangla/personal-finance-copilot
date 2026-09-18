@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fl_chart/fl_chart.dart';
 import '../services/export_service.dart';
+import '../services/api_config.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -36,7 +37,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> fetchSummary() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:8000/summary'));
+      final response = await http.get(Uri.parse('${ApiConfig.baseUrl}/summary'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'] as Map<String, dynamic>;
         final txs = (data['transactions'] as List<dynamic>?) ?? [];
@@ -79,7 +80,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _deleteTransaction(String txId) async {
     try {
       final response = await http.delete(
-        Uri.parse('http://10.0.2.2:8000/delete_transaction/$txId'),
+        Uri.parse('${ApiConfig.baseUrl}/delete_transaction/$txId'),
       );
       if (response.statusCode == 200) {
         if (!mounted) return;
@@ -230,7 +231,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                     try {
                       final response = await http.put(
-                        Uri.parse('http://10.0.2.2:8000/edit_transaction'),
+                        Uri.parse('${ApiConfig.baseUrl}/edit_transaction'),
                         headers: {'Content-Type': 'application/json'},
                         body: jsonEncode({
                           'id': tx['id'],

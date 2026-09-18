@@ -1,7 +1,8 @@
 import 'package:url_launcher/url_launcher.dart';
+import 'api_config.dart';
 
 class ExportService {
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl = ApiConfig.baseUrl;
 
   static Future<void> exportCsv() async {
     final url = Uri.parse('$baseUrl/export/csv');
