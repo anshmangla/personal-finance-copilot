@@ -8,7 +8,17 @@ from memory_manager import get_budgets, set_budget
 from agent import ask_agent
 from utils import load_data, get_summary
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class TransactionReq(BaseModel):
     amount: float
