@@ -164,8 +164,11 @@ async def scan_receipt(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user)
 ):
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="File must be an image.")
+    content_type = file.content_type or ""
+    filename = (file.filename or "").lower()
+    is_image = content_type.startswith("image/") or any(filename.endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".webp", ".heic", ".bmp"])
+    if not is_image and content_type != "application/octet-stream":
+        raise HTTPException(status_code=400, detail=f"File must be an image. Received content-type: {file.content_type}")
         
     try:
         file_bytes = await file.read()

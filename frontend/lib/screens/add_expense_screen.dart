@@ -55,11 +55,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   }
 
   Future<void> _scanReceipt() async {
-    final ImagePicker picker = ImagePicker();
-    XFile? pickedFile;
-
-    // Ask user for source
-    await showModalBottomSheet(
+    final ImageSource? source = await showModalBottomSheet<ImageSource>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Wrap(
@@ -67,23 +63,22 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             ListTile(
               leading: const Icon(Icons.camera_alt),
               title: const Text('Take a Photo'),
-              onTap: () async {
-                Navigator.pop(ctx);
-                pickedFile = await picker.pickImage(source: ImageSource.camera, imageQuality: 50);
-              },
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
               title: const Text('Choose from Gallery'),
-              onTap: () async {
-                Navigator.pop(ctx);
-                pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
-              },
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
             ),
           ],
         ),
       ),
     );
+
+    if (source == null) return;
+
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(source: source, imageQuality: 70);
 
     if (pickedFile == null) return;
 
@@ -95,13 +90,13 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       final res = await ApiClient.multipartPost(
         '/scan_receipt',
         fileField: 'file',
-        filePath: pickedFile!.path,
+        filePath: pickedFile.path,
       );
 
       if (res.statusCode == 200) {
         final body = jsonDecode(res.body);
-        final data = body['data'];
-        
+        final data = body['data'] as Map<String, dynamic>? ?? {};
+
         setState(() {
           _txType = 'debit';
           if (data['merchant'] != null) {
@@ -117,30 +112,33 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           }
           if (data['category'] != null) {
             final parsedCat = data['category'].toString();
-            if (_expenseCategories.contains(parsedCat)) {
-              _selectedCategory = parsedCat;
-            } else {
-              _selectedCategory = 'Other';
-            }
+            final matched = _expenseCategories.firstWhere(
+              (c) => c.toLowerCase() == parsedCat.toLowerCase(),
+              orElse: () => 'Other',
+            );
+            _selectedCategory = matched;
           }
         });
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Receipt scanned successfully! Please review the details.'), backgroundColor: Colors.teal),
+            const SnackBar(
+              content: Text('Receipt scanned successfully! Please review the details.'),
+              backgroundColor: Colors.teal,
+            ),
           );
         }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to scan receipt. Please enter manually.')),
+            SnackBar(content: Text('Scan failed (${res.statusCode}): ${res.body}')),
           );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('Error scanning receipt: $e')),
         );
       }
     } finally {
