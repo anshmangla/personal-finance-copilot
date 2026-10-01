@@ -5,9 +5,9 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon_Serverless-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://neon.tech/)
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
 [![LangChain](https://img.shields.io/badge/LangChain-LangGraph-1C3C3C?style=for-the-badge)](https://www.langchain.com/)
-[![Groq](https://img.shields.io/badge/LLM-Groq_Llama_3-F55036?style=for-the-badge)](https://groq.com/)
+[![Groq](https://img.shields.io/badge/LLM-Groq_Llama_3_%26_Qwen-F55036?style=for-the-badge)](https://groq.com/)
 
-An intelligent, multi-tenant agentic personal finance copilot designed to track expenses, parse SMS banking alerts, manage recurring subscriptions, monitor budgets & goals, generate PDF/CSV reports, and provide financial insights through an autonomous conversational AI agent.
+An intelligent, multi-tenant agentic personal finance copilot designed to track expenses, scan receipts using AI vision, parse SMS banking alerts, manage recurring subscriptions with one-tap payments, monitor budgets & goals, generate PDF/CSV reports, and provide financial insights through an autonomous conversational AI agent.
 
 ---
 
@@ -23,8 +23,18 @@ An intelligent, multi-tenant agentic personal finance copilot designed to track 
   - Production-ready schema with models for `User`, `Transaction`, `Subscription`, `Budget`, and `Goal`.
   - Automatic fallback to local SQLite for offline development.
 
+- **📸 AI OCR Receipt Scanning (Groq Vision)**:
+  - Real-time receipt parsing powered by high-speed multimodal AI (`qwen/qwen3.8-27b` via Groq).
+  - Capture receipts via camera or pick existing bills/invoices from gallery.
+  - Automatically extracts:
+    - **Merchant Name** (e.g., Starbucks, Walmart, Reliance Retail)
+    - **Total Amount** (numeric float)
+    - **Transaction Date** (`YYYY-MM-DD`)
+    - **Expense Category** (categorized into `Food`, `Shopping`, `Bills`, `Health`, etc.)
+  - Pre-fills the manual expense form instantly for 1-tap review and saving.
+
 - **🤖 Autonomous ReAct AI Copilot**:
-  - Built with **LangGraph** and **Groq** high-speed LLM inference (`llama-3.3-70b-versatile`).
+  - Built with **LangGraph** and **Groq** high-speed LLM inference.
   - Context-aware multi-turn financial assistant equipped with live database tools:
     - `total_spend_tool` & `category_spend_tool`: High-level spend aggregations.
     - `merchant_spend_tool`: Merchant-specific analytics (e.g., Swiggy, Amazon, Uber, Zomato).
@@ -67,30 +77,34 @@ flowchart TD
         B[Dashboard & Charts]
         C[One-Tap Pay Banner]
         D[AI Copilot Chat]
-        E[Budgets, Goals & Reports]
+        E[Camera / Gallery Receipt Scanner]
+        F[Budgets, Goals & Reports]
     end
 
     subgraph Backend["FastAPI Server (Deployed on Render)"]
-        F[Auth Service - JWT & Google OAuth]
-        G[REST API Endpoints]
-        H[LangGraph ReAct Agent]
-        I[Report Generator - PDF / CSV]
+        G[Auth Service - JWT & Google OAuth]
+        H[REST API Endpoints]
+        I[LangGraph ReAct Agent]
+        J[OCR Vision Service]
+        K[Report Generator - PDF / CSV]
     end
 
     subgraph Cloud["Cloud Infrastructure"]
-        J[(Neon Serverless PostgreSQL)]
-        K[Groq Cloud LLM - Llama 3]
-        L[Google Identity Services]
+        L[(Neon Serverless PostgreSQL)]
+        M[Groq Cloud LLM & Vision]
+        N[Google Identity Services]
     end
 
-    A <-->|Verify ID Token| L
-    A <-->|Auth JWT| F
-    B & C & E <-->|Authorized REST Calls| G
-    D <-->|Chat Query / User Context| H
-    H <-->|Function Calling Tools| G
-    H <-->|Prompt & Tool Reasoning| K
-    G <-->|SQLAlchemy ORM Queries| J
-    G -->|Export Generation| I
+    A <-->|Verify ID Token| N
+    A <-->|Auth JWT| G
+    B & C & F <-->|Authorized REST Calls| H
+    D <-->|Chat Query / User Context| I
+    E -->|Multipart Image Upload| J
+    J <-->|Vision Model Inference| M
+    I <-->|Function Calling Tools| H
+    I <-->|Prompt & Tool Reasoning| M
+    H <-->|SQLAlchemy ORM Queries| L
+    H -->|Export Generation| K
 ```
 
 ---
@@ -107,27 +121,28 @@ personal_finance_copilot/
 │   ├── database.py           # SQLAlchemy engine & Neon Postgres configuration
 │   ├── db_services.py        # Database CRUD services (Transactions, Subscriptions, Budgets, Goals)
 │   ├── models.py             # SQLAlchemy ORM models (User, Transaction, Subscription, Budget, Goal)
+│   ├── ocr_service.py        # Groq Vision AI receipt parsing service
 │   ├── report_generator.py   # PDF (ReportLab) and CSV generation utilities
-│   ├── requirements.txt      # Python dependencies (psycopg2-binary, reportlab, etc.)
+│   ├── requirements.txt      # Python dependencies (python-multipart, psycopg2, reportlab, etc.)
 │   ├── sms_parser.py         # Regex + LLM SMS transaction extractor
-│   ├── transaction_manager.py# Legacy/helper analytics & metric calculations
+│   ├── transaction_manager.py# Helper analytics & metric calculations
 │   └── utils.py              # Spending calculations & trend analysis
 ├── frontend/
 │   ├── lib/
 │   │   ├── main.dart                 # App initialization & navigation
 │   │   ├── services/
-│   │   │   ├── api_client.dart       # HTTP client with JWT interceptor
+│   │   │   ├── api_client.dart       # HTTP client with JWT interceptor & multipart support
 │   │   │   └── auth_service.dart     # Google Sign-In & token storage
 │   │   └── screens/
 │   │       ├── auth_screen.dart          # Google login screen
 │   │       ├── dashboard_screen.dart     # Overview metrics, upcoming bills, one-tap pay
 │   │       ├── chat_screen.dart          # Agentic conversational UI
-│   │       ├── add_expense_screen.dart   # Transaction entry & SMS parsing
+│   │       ├── add_expense_screen.dart   # Transaction entry, SMS parsing & OCR receipt scan
 │   │       ├── subscriptions_screen.dart # Recurring bill management & one-tap pay
 │   │       ├── budgets_screen.dart       # Category spending budgets
 │   │       ├── goals_screen.dart         # Financial savings targets
 │   │       └── export_screen.dart        # PDF / CSV report downloads
-│   └── pubspec.yaml          # Flutter dependencies
+│   └── pubspec.yaml          # Flutter dependencies (image_picker, fl_chart, etc.)
 ├── .gitignore
 └── README.md
 ```
@@ -225,6 +240,7 @@ All protected endpoints require the HTTP header: `Authorization: Bearer <JWT_TOK
 | `GET` | `/` | Health check endpoint |
 | `GET` | `/summary` | Aggregated user metrics, monthly totals, category breakdown, upcoming bills |
 | `POST` | `/chat` | Conversational query to the LangGraph ReAct agent |
+| `POST` | `/scan_receipt` | **OCR Receipt Scanner**: Accepts multipart image file and extracts merchant, amount, date, and category |
 | `POST` | `/add_transaction` | Records a new credit or debit transaction |
 | `PUT` | `/edit_transaction` | Updates an existing transaction |
 | `DELETE` | `/delete_transaction/{id}` | Deletes a transaction by ID |
