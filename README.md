@@ -20,8 +20,14 @@ An intelligent, multi-tenant agentic personal finance copilot designed to track 
 
 - **🐘 Cloud Database (PostgreSQL on Neon)**:
   - Powered by serverless **Neon PostgreSQL** via **SQLAlchemy ORM**.
-  - Production-ready schema with models for `User`, `Transaction`, `Subscription`, `Budget`, and `Goal`.
+  - Production-ready schema with models for `User`, `Transaction`, `Subscription`, `Budget`, `Goal`, `Habit`, and `ChatMessage`.
   - Automatic fallback to local SQLite for offline development.
+
+- **💬 Persistent Cloud Chat & Conversational Memory**:
+  - Full multi-turn conversational context powered by **LangGraph** `MemorySaver` thread checkpointing (`thread_id = user_id`).
+  - Chat history stored persistently in Neon PostgreSQL (`chat_messages` table) per user.
+  - **Cold-Start Resilience**: Context is automatically restored directly from PostgreSQL even if the backend server restarts.
+  - **1-Tap "New Chat"**: Starts a fresh slate, wipes working memory, and provides interactive starter prompt suggestions.
 
 - **📸 AI OCR Receipt Scanning (Groq Vision)**:
   - Real-time receipt parsing powered by high-speed multimodal AI (`qwen/qwen3.8-27b` via Groq).
@@ -119,8 +125,8 @@ personal_finance_copilot/
 │   ├── auth.py               # Google OAuth verification & JWT helpers
 │   ├── backend.py            # FastAPI main app, router, & endpoints
 │   ├── database.py           # SQLAlchemy engine & Neon Postgres configuration
-│   ├── db_services.py        # Database CRUD services (Transactions, Subscriptions, Budgets, Goals)
-│   ├── models.py             # SQLAlchemy ORM models (User, Transaction, Subscription, Budget, Goal)
+│   ├── db_services.py        # Database CRUD services (Transactions, Subscriptions, Budgets, Goals, Chat)
+│   ├── models.py             # SQLAlchemy ORM models (User, Transaction, Subscription, Budget, Goal, ChatMessage)
 │   ├── ocr_service.py        # Groq Vision AI receipt parsing service
 │   ├── report_generator.py   # PDF (ReportLab) and CSV generation utilities
 │   ├── requirements.txt      # Python dependencies (python-multipart, psycopg2, reportlab, etc.)
@@ -136,7 +142,7 @@ personal_finance_copilot/
 │   │   └── screens/
 │   │       ├── auth_screen.dart          # Google login screen
 │   │       ├── dashboard_screen.dart     # Overview metrics, upcoming bills, one-tap pay
-│   │       ├── chat_screen.dart          # Agentic conversational UI
+│   │       ├── chat_screen.dart          # Conversational agent UI with persistent history & New Chat
 │   │       ├── add_expense_screen.dart   # Transaction entry, SMS parsing & OCR receipt scan
 │   │       ├── subscriptions_screen.dart # Recurring bill management & one-tap pay
 │   │       ├── budgets_screen.dart       # Category spending budgets
