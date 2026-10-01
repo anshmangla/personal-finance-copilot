@@ -1,30 +1,46 @@
 import pandas as pd
 from datetime import datetime
-from transaction_manager import get_df
 
-def load_data():
-    return get_df()
-
-def get_total_spend(df):
+def get_total_spend(df: pd.DataFrame) -> float:
+    if df.empty or "type" not in df.columns:
+        return 0.0
     debits = df[df["type"].str.lower() != "credit"]
-    return float(debits["amount"].sum())
+    return float(debits["amount"].sum()) if not debits.empty else 0.0
 
-def get_total_income(df):
+def get_total_income(df: pd.DataFrame) -> float:
+    if df.empty or "type" not in df.columns:
+        return 0.0
     credits = df[df["type"].str.lower() == "credit"]
-    return float(credits["amount"].sum())
+    return float(credits["amount"].sum()) if not credits.empty else 0.0
 
-def get_category_spend(df, category: str):
+def get_category_spend(df: pd.DataFrame, category: str) -> float:
+    if df.empty or "type" not in df.columns or "category" not in df.columns:
+        return 0.0
     debits = df[df["type"].str.lower() != "credit"]
     result = debits[debits["category"].str.lower() == category.lower()]
     return float(result["amount"].sum()) if not result.empty else 0.0
 
-def get_top_category(df):
+def get_top_category(df: pd.DataFrame) -> str:
+    if df.empty or "type" not in df.columns or "category" not in df.columns:
+        return "None"
     debits = df[df["type"].str.lower() != "credit"]
     if debits.empty:
         return "None"
     return debits.groupby("category")["amount"].sum().idxmax()
 
-def get_summary(df):
+def get_summary(
+    df: pd.DataFrame,
+    upcoming_reminders: list = None,
+    budgets: dict = None,
+    goals: list = None
+) -> dict:
+    if upcoming_reminders is None:
+        upcoming_reminders = []
+    if budgets is None:
+        budgets = {}
+    if goals is None:
+        goals = []
+
     clean_df = df.copy().fillna("")
     if "date" in clean_df.columns:
         clean_df["date"] = clean_df["date"].astype(str)
@@ -32,52 +48,53 @@ def get_summary(df):
     if "merchant" in clean_df.columns:
         clean_df["merchant"] = clean_df["merchant"].astype(str).str.replace("\n", " ").str.strip()
 
-    debits = clean_df[clean_df["type"].str.lower() != "credit"]
-    credits = clean_df[clean_df["type"].str.lower() == "credit"]
+    debits = clean_df[clean_df["type"].str.lower() != "credit"] if not clean_df.empty and "type" in clean_df.columns else pd.DataFrame()
+    credits = clean_df[clean_df["type"].str.lower() == "credit"] if not clean_df.empty and "type" in clean_df.columns else pd.DataFrame()
+
     total_spend = float(debits["amount"].sum()) if not debits.empty else 0.0
     total_income = float(credits["amount"].sum()) if not credits.empty else 0.0
     balance = total_income - total_spend
 
     category_breakdown = debits.groupby("category")["amount"].sum().to_dict() if not debits.empty else {}
 
-    from subscription_manager import get_upcoming_reminders
-    from memory_manager import get_budgets, get_goals
-    upcoming_reminders = get_upcoming_reminders()
-    budgets = get_budgets()
-    goals = get_goals()
-
     return {
         "total_spend": total_spend,
         "total_income": total_income,
         "balance": balance,
         "category_breakdown": category_breakdown,
-        "transactions": clean_df.to_dict(orient="records"),
+        "transactions": clean_df.to_dict(orient="records") if not clean_df.empty else [],
         "upcoming_reminders": upcoming_reminders,
         "budgets": budgets,
         "goals": goals
     }
 
-def monthly_spend(df):
-    df["date"] = pd.to_datetime(df["date"])
-    df["month"] = df["date"].dt.to_period("M")
-    return df.groupby("month")["amount"].sum()
+def monthly_spend(df: pd.DataFrame):
+    if df.empty or "date" not in df.columns:
+        return pd.Series(dtype=float)
+    df_copy = df.copy()
+    df_copy["date"] = pd.to_datetime(df_copy["date"])
+    df_copy["month"] = df_copy["date"].dt.to_period("M")
+    return df_copy.groupby("month")["amount"].sum()
 
-def category_trend(df):
-    df["date"] = pd.to_datetime(df["date"])
-    df["month"] = df["date"].dt.to_period("M")
-    return df.groupby(["month", "category"])["amount"].sum().unstack().fillna(0)
+def category_trend(df: pd.DataFrame):
+    if df.empty or "date" not in df.columns or "category" not in df.columns:
+        return pd.DataFrame()
+    df_copy = df.copy()
+    df_copy["date"] = pd.to_datetime(df_copy["date"])
+    df_copy["month"] = df_copy["date"].dt.to_period("M")
+    return df_copy.groupby(["month", "category"])["amount"].sum().unstack().fillna(0)
 
-def detect_spike(df):
+def detect_spike(df: pd.DataFrame) -> str:
     monthly = monthly_spend(df)
-
     if len(monthly) < 2:
         return "Not enough data"
 
     last = monthly.iloc[-1]
     prev = monthly.iloc[-2]
+    if prev == 0:
+        return "Spending increased"
 
     change = ((last - prev) / prev) * 100
-
     if change > 20:
         return f"⚠️ Spending increased by {change:.1f}%"
     elif change < -20:
@@ -85,42 +102,45 @@ def detect_spike(df):
     else:
         return "Spending is stable"
 
-def detect_weekend_spending(df):
+def detect_weekend_spending(df: pd.DataFrame) -> str:
+    if df.empty or "date" not in df.columns:
+        return "No transaction data"
+    df_copy = df.copy()
+    df_copy["date"] = pd.to_datetime(df_copy["date"])
+    df_copy["weekday"] = df_copy["date"].dt.weekday
 
-    df["date"] = pd.to_datetime(df["date"])
-
-    df["weekday"] = df["date"].dt.weekday
-
-    weekend = df[df["weekday"] >= 5]["amount"].sum()
-    weekday = df[df["weekday"] < 5]["amount"].sum()
+    weekend = df_copy[df_copy["weekday"] >= 5]["amount"].sum()
+    weekday = df_copy[df_copy["weekday"] < 5]["amount"].sum()
 
     if weekend > weekday:
         return "User overspends on weekends"
-
     return "No major weekend overspending"
 
-def spending_alert(df):
-    from memory_manager import get_budgets
-    budgets = get_budgets()
-    
-    # Get current month spend per category
-    df["date"] = pd.to_datetime(df["date"])
+def spending_alert(df: pd.DataFrame, budgets: dict = None) -> str:
+    if budgets is None:
+        budgets = {}
+
+    if df.empty or "date" not in df.columns:
+        return "Spending looks okay"
+
+    df_copy = df.copy()
+    df_copy["date"] = pd.to_datetime(df_copy["date"])
     current_month = datetime.now().strftime("%Y-%m")
-    current_month_df = df[df["date"].dt.strftime("%Y-%m") == current_month]
-    debits = current_month_df[current_month_df["type"].str.lower() != "credit"]
-    
-    category_spend = debits.groupby("category")["amount"].sum().to_dict()
-    
+    current_month_df = df_copy[df_copy["date"].dt.strftime("%Y-%m") == current_month]
+    debits = current_month_df[current_month_df["type"].str.lower() != "credit"] if "type" in current_month_df.columns else current_month_df
+
+    category_spend = debits.groupby("category")["amount"].sum().to_dict() if not debits.empty and "category" in debits.columns else {}
+
     alerts = []
     for cat, limit in budgets.items():
         spent = category_spend.get(cat, 0.0)
         if spent > limit:
-            alerts.append(f"⚠️ Over budget in {cat}: Spent ₹{spent} (Limit: ₹{limit})")
-    
+            alerts.append(f"⚠️ Over budget in {cat}: Spent ₹{spent:,.2f} (Limit: ₹{limit:,.2f})")
+
     if alerts:
         return "\n".join(alerts)
-        
-    total = df["amount"].sum()
+
+    total = debits["amount"].sum() if not debits.empty else 0.0
     if total > 10000 and not budgets:
         return "⚠️ You are crossing your monthly spending limit of ₹10,000"
 

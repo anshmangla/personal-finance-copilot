@@ -1,63 +1,82 @@
 import os
+from contextvars import ContextVar
 import pandas as pd
 from dotenv import load_dotenv
 
 from langchain_groq import ChatGroq
 from langchain.tools import tool
+from langgraph.prebuilt import create_react_agent
 
+from database import SessionLocal
+import db_services
 from utils import (
     detect_spike,
-    load_data,
     get_total_spend,
     get_category_spend,
     get_top_category,
     get_summary,
     monthly_spend,
-    detect_weekend_spending,
     spending_alert
 )
-from memory_manager import add_habit, add_goal
 
 load_dotenv()
 
-df_init = load_data()
-habit = detect_weekend_spending(df_init)
-add_habit(habit)
+# Thread-safe ContextVar to store current authenticated user_id
+current_user_id: ContextVar[str] = ContextVar("current_user_id", default="")
+
+def _get_df() -> pd.DataFrame:
+    uid = current_user_id.get()
+    if uid:
+        db = SessionLocal()
+        try:
+            return db_services.get_transactions_df(db, uid)
+        finally:
+            db.close()
+    from transaction_manager import get_df
+    return get_df()
+
+def _get_budgets() -> dict:
+    uid = current_user_id.get()
+    if uid:
+        db = SessionLocal()
+        try:
+            return db_services.get_budgets(db, uid)
+        finally:
+            db.close()
+    from memory_manager import get_budgets
+    return get_budgets()
 
 # ---------------- TOOLS ---------------- #
 
 @tool
 def total_spend_tool(input_text: str = ""):
     """Returns total money spent"""
-    df = load_data()
-    return str(get_total_spend(df))
-
+    df = _get_df()
+    return f"Rs. {get_total_spend(df):.2f}"
 
 @tool
 def category_spend_tool(category: str):
     """Returns total spend for a category like Food, Shopping, Bills"""
-    df = load_data()
-    return str(get_category_spend(df, category))
-
+    df = _get_df()
+    return f"Rs. {get_category_spend(df, category):.2f}"
 
 @tool
 def top_category_tool(input_text: str = ""):
     """Returns highest spending category"""
-    df = load_data()
+    df = _get_df()
     return str(get_top_category(df))
-
 
 @tool
 def summary_tool(input_text: str = ""):
     """Returns full finance summary"""
-    df = load_data()
-    return str(get_summary(df))
-
+    df = _get_df()
+    budgets = _get_budgets()
+    return str(get_summary(df, budgets=budgets))
 
 @tool
 def insight_tool(input_text: str = ""):
-    """Generates financial insights"""
-    df = load_data()
+    """Generates financial insights and trends"""
+    df = _get_df()
     monthly = monthly_spend(df)
     spike = detect_spike(df)
     categories = get_summary(df)["category_breakdown"]
@@ -72,33 +91,34 @@ Trend Insight:
 {spike}
 """
 
-
 @tool
 def recommendation_tool(input_text: str = ""):
     """Provides spending recommendations"""
-    df = load_data()
+    df = _get_df()
     categories = get_summary(df)["category_breakdown"]
-    total = sum(categories.values())
+    total = sum(categories.values()) if categories else 0.0
+
+    if total == 0:
+        return "No spending data available to generate recommendations."
 
     advice = []
-
     for cat, val in categories.items():
         percent = (val / total) * 100
-
         if percent > 40:
-            advice.append(
-                f"You spend a lot on {cat} ({percent:.1f}%). Try reducing it."
-            )
+            advice.append(f"You spend a lot on {cat} ({percent:.1f}% of total). Try reducing it.")
 
     if not advice:
-        advice.append("Your spending looks balanced.")
+        advice.append("Your spending looks balanced across categories.")
 
     return "\n".join(advice)
 
 @tool
 def merchant_spend_tool(merchant: str):
     """Returns total money spent on a specific merchant, store, service, or person (e.g., DMRC, Swiggy, Uber, Amazon, Zomato)."""
-    df = load_data()
+    df = _get_df()
+    if df.empty or "merchant" not in df.columns:
+        return f"No expenses found for merchant '{merchant}'."
+
     debits = df[df["type"].str.lower() != "credit"]
     matches = debits[debits["merchant"].str.lower().str.contains(merchant.lower().strip(), na=False)]
     if matches.empty:
@@ -110,7 +130,10 @@ def merchant_spend_tool(merchant: str):
 @tool
 def search_transactions_tool(query: str):
     """Searches transactions matching a keyword in merchant or category."""
-    df = load_data()
+    df = _get_df()
+    if df.empty:
+        return f"No transactions found matching '{query}'."
+
     q = query.lower().strip()
     matches = df[
         df["merchant"].str.lower().str.contains(q, na=False) |
@@ -124,21 +147,25 @@ def search_transactions_tool(query: str):
 @tool
 def income_tool(input_text: str = ""):
     """Returns total money received or credited (income)."""
-    df = load_data()
-    credits = df[df["type"].str.lower() == "credit"]
+    df = _get_df()
+    credits = df[df["type"].str.lower() == "credit"] if not df.empty and "type" in df.columns else pd.DataFrame()
     total = float(credits["amount"].sum()) if not credits.empty else 0.0
     return f"Total income / money received: Rs. {total:.2f}"
 
 @tool
 def monthly_summary_tool(month: str = ""):
-    """Returns month-wise spending, income, and balance for each month or a specific month (e.g. 'April', '2026-04', 'September')."""
-    df = load_data()
-    df["date"] = pd.to_datetime(df["date"])
-    df["month_str"] = df["date"].dt.strftime("%Y-%m")
-    debits = df[df["type"].str.lower() != "credit"]
-    credits = df[df["type"].str.lower() == "credit"]
+    """Returns month-wise spending, income, and balance for each month."""
+    df = _get_df()
+    if df.empty or "date" not in df.columns:
+        return "No monthly data available."
 
-    all_months = sorted(df["month_str"].unique(), reverse=True)
+    df_copy = df.copy()
+    df_copy["date"] = pd.to_datetime(df_copy["date"])
+    df_copy["month_str"] = df_copy["date"].dt.strftime("%Y-%m")
+    debits = df_copy[df_copy["type"].str.lower() != "credit"]
+    credits = df_copy[df_copy["type"].str.lower() == "credit"]
+
+    all_months = sorted(df_copy["month_str"].unique(), reverse=True)
     summary = []
     for m in all_months:
         m_deb = float(debits[debits["month_str"] == m]["amount"].sum()) if not debits.empty else 0.0
@@ -150,30 +177,48 @@ def monthly_summary_tool(month: str = ""):
 
 @tool
 def add_goal_tool(goal: str):
-    """Adds a financial goal"""
+    """Adds a financial goal for the user."""
+    uid = current_user_id.get()
+    if uid:
+        db = SessionLocal()
+        try:
+            res = db_services.add_goal(db, uid, goal)
+            return f"Goal added: {res['goal_text']}"
+        finally:
+            db.close()
+    from memory_manager import add_goal
     add_goal(goal)
     return f"Goal added: {goal}"
 
 @tool
 def subscriptions_tool(input_text: str = ""):
-    """Returns active subscriptions and upcoming bills"""
+    """Returns active subscriptions and upcoming bills due in the next 14 days."""
+    uid = current_user_id.get()
+    if uid:
+        db = SessionLocal()
+        try:
+            df = db_services.get_subscriptions_df(db, uid)
+            if df.empty:
+                return "No active subscriptions."
+            reminders = db_services.get_upcoming_reminders(db, uid, 14)
+            return f"Subscriptions: {df.to_dict(orient='records')}\nUpcoming in 14 days: {reminders}"
+        finally:
+            db.close()
     from subscription_manager import get_subscriptions_df, get_upcoming_reminders
     df = get_subscriptions_df()
     if df.empty:
         return "No active subscriptions."
-    reminders = get_upcoming_reminders(14) # next 14 days
+    reminders = get_upcoming_reminders(14)
     return f"Subscriptions: {df.to_dict(orient='records')}\nUpcoming in 14 days: {reminders}"
 
 @tool
 def check_budget_tool(input_text: str = ""):
-    """Returns the user's category budgets and checks if they are overspending in the current month."""
-    from utils import load_data, spending_alert
-    from memory_manager import get_budgets
-    df = load_data()
-    budgets = get_budgets()
+    """Returns user's category budgets and alerts if overspending."""
+    df = _get_df()
+    budgets = _get_budgets()
     if not budgets:
-        return "No budgets set yet."
-    alerts = spending_alert(df)
+        return "No category budgets set yet."
+    alerts = spending_alert(df, budgets=budgets)
     return f"Budgets: {budgets}\nStatus: {alerts}"
 
 # ---------------- TOOL LIST ---------------- #
@@ -201,8 +246,6 @@ llm = ChatGroq(
     temperature=0
 )
 
-from langgraph.prebuilt import create_react_agent
-
 SYSTEM_PROMPT = """You are a helpful and intelligent Personal Finance Assistant.
 Key Rules:
 1. CURRENCY: All amounts are in Indian Rupees (Rs. / ₹). ALWAYS format monetary amounts with the ₹ symbol (e.g., ₹500, ₹1,200.00). NEVER use dollar signs ($) or mention USD.
@@ -211,12 +254,14 @@ Key Rules:
 4. Be direct, helpful, and polite.
 """
 
-# ---------------- AGENT ---------------- #
-
 agent_executor = create_react_agent(llm, tools=tools, prompt=SYSTEM_PROMPT)
 
 # ---------------- ASK FUNCTION ---------------- #
 
-def ask_agent(query: str):
-    response = agent_executor.invoke({"messages": [("user", query)]})
-    return response["messages"][-1].content
+def ask_agent(query: str, user_id: str = "") -> str:
+    token = current_user_id.set(user_id)
+    try:
+        response = agent_executor.invoke({"messages": [("user", query)]})
+        return response["messages"][-1].content
+    finally:
+        current_user_id.reset(token)

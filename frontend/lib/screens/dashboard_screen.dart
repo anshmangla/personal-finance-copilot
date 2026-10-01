@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:fl_chart/fl_chart.dart';
 import '../services/export_service.dart';
-import '../services/api_config.dart';
+import '../services/api_client.dart';
+import '../services/auth_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -37,7 +37,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> fetchSummary() async {
     try {
-      final response = await http.get(Uri.parse('${ApiConfig.baseUrl}/summary'));
+      final response = await ApiClient.get('/summary');
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'] as Map<String, dynamic>;
         final txs = (data['transactions'] as List<dynamic>?) ?? [];
@@ -79,9 +79,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _deleteTransaction(String txId) async {
     try {
-      final response = await http.delete(
-        Uri.parse('${ApiConfig.baseUrl}/delete_transaction/$txId'),
-      );
+      final response = await ApiClient.delete('/delete_transaction/$txId');
       if (response.statusCode == 200) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -230,17 +228,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Navigator.pop(dialogContext);
 
                     try {
-                      final response = await http.put(
-                        Uri.parse('${ApiConfig.baseUrl}/edit_transaction'),
-                        headers: {'Content-Type': 'application/json'},
-                        body: jsonEncode({
+                      final response = await ApiClient.put(
+                        '/edit_transaction',
+                        body: {
                           'id': tx['id'],
                           'amount': newAmount,
                           'merchant': newMerchant,
                           'category': currentCategory,
                           'type': currentType,
                           'date': currentDate,
-                        }),
+                        },
                       );
                       if (response.statusCode == 200) {
                         messenger.showSnackBar(
@@ -498,7 +495,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
               });
               fetchSummary();
             },
-          )
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'Account',
+            icon: CircleAvatar(
+              radius: 14,
+              backgroundColor: Colors.blue.shade100,
+              backgroundImage: AuthService().user?['picture'] != null && (AuthService().user?['picture'] as String).isNotEmpty
+                  ? NetworkImage(AuthService().user!['picture'])
+                  : null,
+              child: AuthService().user?['picture'] == null || (AuthService().user?['picture'] as String).isEmpty
+                  ? Text(
+                      (AuthService().user?['name'] ?? 'U')[0].toUpperCase(),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+                    )
+                  : null,
+            ),
+            onSelected: (value) async {
+              if (value == 'logout') {
+                await AuthService().signOut();
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                enabled: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AuthService().user?['name'] ?? 'User',
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                    ),
+                    Text(
+                      AuthService().user?['email'] ?? '',
+                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, size: 18, color: Colors.redAccent),
+                    SizedBox(width: 8),
+                    Text('Sign Out', style: TextStyle(color: Colors.redAccent)),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: RefreshIndicator(

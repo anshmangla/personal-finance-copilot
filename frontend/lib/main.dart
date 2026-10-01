@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
+import 'services/auth_service.dart';
+import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/add_expense_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/subscriptions_screen.dart';
 import 'screens/budgets_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AuthService().init();
   runApp(const MyApp());
 }
 
@@ -21,8 +24,34 @@ class MyApp extends StatelessWidget {
       title: 'Finance Copilot',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        useMaterial3: true,
       ),
-      home: const MainScreen(),
+      home: const AuthGate(),
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: AuthService(),
+      builder: (context, _) {
+        final auth = AuthService();
+        if (auth.isLoading) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        if (!auth.isAuthenticated) {
+          return const LoginScreen();
+        }
+        return const MainScreen();
+      },
     );
   }
 }

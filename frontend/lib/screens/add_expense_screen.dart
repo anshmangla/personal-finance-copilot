@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import '../services/api_config.dart';
+import '../services/api_client.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({super.key});
@@ -80,16 +78,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         "${_selectedDate.year.toString().padLeft(4, '0')}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}";
 
     try {
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/add_transaction'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+      final response = await ApiClient.post(
+        '/add_transaction',
+        body: {
           'amount': amount,
           'merchant': merchant,
           'category': _selectedCategory,
           'type': _txType,
           'date': formattedDate,
-        }),
+        },
       );
 
       if (response.statusCode == 200) {

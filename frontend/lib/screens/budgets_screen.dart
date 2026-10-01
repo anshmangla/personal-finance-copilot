@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import '../widgets/budget_progress_bar.dart';
-import '../services/api_config.dart';
+import '../services/api_client.dart';
 
 class BudgetsScreen extends StatefulWidget {
   const BudgetsScreen({super.key});
@@ -31,7 +30,7 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
   Future<void> _fetchBudgetsAndSummary() async {
     setState(() => _isLoading = true);
     try {
-      final summaryRes = await http.get(Uri.parse('${ApiConfig.baseUrl}/summary'));
+      final summaryRes = await ApiClient.get('/summary');
       if (summaryRes.statusCode == 200) {
         final data = jsonDecode(summaryRes.body)['data'];
         
@@ -79,7 +78,7 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
 
   Future<void> _deleteGoal(int index) async {
     try {
-      final res = await http.delete(Uri.parse('${ApiConfig.baseUrl}/delete_goal/$index'));
+      final res = await ApiClient.delete('/delete_goal/$index');
       if (res.statusCode == 200) {
         _fetchBudgetsAndSummary();
       }
@@ -169,10 +168,9 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
                   if (limit == null || limit <= 0) return;
                   
                   Navigator.pop(ctx);
-                  await http.post(
-                    Uri.parse('${ApiConfig.baseUrl}/set_budget'),
-                    headers: {'Content-Type': 'application/json'},
-                    body: jsonEncode({'category': selectedCat, 'limit': limit}),
+                  await ApiClient.post(
+                    '/set_budget',
+                    body: {'category': selectedCat, 'limit': limit},
                   );
                   _fetchBudgetsAndSummary();
                 },
@@ -207,10 +205,9 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
               if (text.isEmpty) return;
 
               Navigator.pop(ctx);
-              await http.post(
-                Uri.parse('${ApiConfig.baseUrl}/add_goal'),
-                headers: {'Content-Type': 'application/json'},
-                body: jsonEncode({'goal': text}),
+              await ApiClient.post(
+                '/add_goal',
+                body: {'goal': text},
               );
               _fetchBudgetsAndSummary();
             },

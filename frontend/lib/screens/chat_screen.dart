@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import '../services/api_config.dart';
+import '../services/api_client.dart';
 
 class ChatMessage {
   final String text;
@@ -33,11 +32,10 @@ class _ChatScreenState extends State<ChatScreen> {
     _controller.clear();
 
     try {
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/chat'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'query': text}),
-      ).timeout(const Duration(seconds: 60));
+      final response = await ApiClient.post(
+        '/chat',
+        body: {'query': text},
+      );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

@@ -6,11 +6,11 @@ class BudgetProgressBar extends StatelessWidget {
   final double limit;
 
   const BudgetProgressBar({
-    Key? key,
+    super.key,
     required this.category,
     required this.spent,
     required this.limit,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

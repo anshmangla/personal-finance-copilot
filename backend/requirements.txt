@@ -7,3 +7,8 @@ langchain-core
 langchain-groq
 langgraph
 fpdf2
+sqlalchemy
+psycopg2-binary
+google-auth
+pyjwt
+requests

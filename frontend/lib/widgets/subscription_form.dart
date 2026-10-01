@@ -1,13 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import '../services/api_config.dart';
+import '../services/api_client.dart';
 
 class SubscriptionForm extends StatefulWidget {
   final Map<String, dynamic>? subscription;
   final VoidCallback onSaved;
 
-  const SubscriptionForm({Key? key, this.subscription, required this.onSaved}) : super(key: key);
+  const SubscriptionForm({super.key, this.subscription, required this.onSaved});
 
   @override
   State<SubscriptionForm> createState() => _SubscriptionFormState();
@@ -73,9 +71,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     }
 
     final isEditing = widget.subscription != null;
-    final url = isEditing 
-        ? '${ApiConfig.baseUrl}/edit_subscription' 
-        : '${ApiConfig.baseUrl}/add_subscription';
+    final path = isEditing ? '/edit_subscription' : '/add_subscription';
 
     final body = {
       if (isEditing) 'id': widget.subscription!['id'],
@@ -88,8 +84,8 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
 
     try {
       final response = isEditing 
-          ? await http.put(Uri.parse(url), headers: {'Content-Type': 'application/json'}, body: jsonEncode(body))
-          : await http.post(Uri.parse(url), headers: {'Content-Type': 'application/json'}, body: jsonEncode(body));
+          ? await ApiClient.put(path, body: body)
+          : await ApiClient.post(path, body: body);
 
       if (response.statusCode == 200) {
         if (!mounted) return;

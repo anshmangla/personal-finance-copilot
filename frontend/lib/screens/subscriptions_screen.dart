@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import '../widgets/subscription_form.dart';
-import '../services/api_config.dart';
+import '../services/api_client.dart';
 
 class SubscriptionsScreen extends StatefulWidget {
   const SubscriptionsScreen({super.key});
@@ -25,7 +24,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
   Future<void> _fetchSubscriptions() async {
     setState(() { _isLoading = true; });
     try {
-      final response = await http.get(Uri.parse('${ApiConfig.baseUrl}/subscriptions'));
+      final response = await ApiClient.get('/subscriptions');
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'] as List<dynamic>;
         // Sort by next payment date
@@ -44,7 +43,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
 
   Future<void> _deleteSubscription(String subId) async {
     try {
-      final response = await http.delete(Uri.parse('${ApiConfig.baseUrl}/delete_subscription/$subId'));
+      final response = await ApiClient.delete('/delete_subscription/$subId');
       if (response.statusCode == 200) {
         _fetchSubscriptions();
       }
