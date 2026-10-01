@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain.tools import tool
 from langgraph.prebuilt import create_react_agent
+from langgraph.checkpoint.memory import MemorySaver
 
 from database import SessionLocal
 import db_services
@@ -254,14 +255,52 @@ Key Rules:
 4. Be direct, helpful, and polite.
 """
 
-agent_executor = create_react_agent(llm, tools=tools, prompt=SYSTEM_PROMPT)
+checkpointer = MemorySaver()
+
+agent_executor = create_react_agent(
+    llm,
+    tools=tools,
+    prompt=SYSTEM_PROMPT,
+    checkpointer=checkpointer
+)
 
 # ---------------- ASK FUNCTION ---------------- #
 
 def ask_agent(query: str, user_id: str = "") -> str:
     token = current_user_id.set(user_id)
     try:
-        response = agent_executor.invoke({"messages": [("user", query)]})
+        thread_id = user_id if user_id else "default_session"
+        config = {"configurable": {"thread_id": thread_id}}
+
+        # If this thread has no active checkpoint in memory (e.g. after server restart),
+        # restore recent conversation turns from the database
+        if user_id:
+            try:
+                state = checkpointer.get_tuple(config)
+                if state is None:
+                    db = SessionLocal()
+                    try:
+                        past_msgs = db_services.get_chat_history(db, user_id, limit=10)
+                        if past_msgs:
+                            seed_messages = []
+                            for m in past_msgs:
+                                role = "user" if m["role"] == "user" else "assistant"
+                                seed_messages.append((role, m["content"]))
+                            if seed_messages:
+                                agent_executor.invoke({"messages": seed_messages}, config=config)
+                    finally:
+                        db.close()
+            except Exception as e:
+                print(f"Error seeding chat memory: {e}")
+
+        response = agent_executor.invoke({"messages": [("user", query)]}, config=config)
         return response["messages"][-1].content
     finally:
         current_user_id.reset(token)
+
+def clear_agent_memory(user_id: str = ""):
+    thread_id = user_id if user_id else "default_session"
+    try:
+        checkpointer.delete_thread(thread_id)
+    except Exception as e:
+        print(f"Error clearing agent thread {thread_id}: {e}")

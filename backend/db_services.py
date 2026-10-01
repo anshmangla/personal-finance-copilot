@@ -4,7 +4,7 @@ from typing import List, Optional, Dict
 import pandas as pd
 from sqlalchemy.orm import Session
 
-from models import Transaction, Subscription, Budget, Goal, Habit
+from models import Transaction, Subscription, Budget, Goal, Habit, ChatMessage
 
 # ---------------- TRANSACTIONS ---------------- #
 
@@ -344,3 +344,33 @@ def add_habit(db: Session, user_id: str, habit_text: str):
     habit = Habit(user_id=user_id, habit_text=habit_text.strip())
     db.add(habit)
     db.commit()
+
+
+# ---------------- CHAT MESSAGES ---------------- #
+
+def save_chat_message(db: Session, user_id: str, role: str, content: str) -> ChatMessage:
+    msg = ChatMessage(user_id=user_id, role=role, content=content)
+    db.add(msg)
+    db.commit()
+    db.refresh(msg)
+    return msg
+
+def get_chat_history(db: Session, user_id: str, limit: int = 100) -> List[dict]:
+    msgs = db.query(ChatMessage).filter(
+        ChatMessage.user_id == user_id
+    ).order_by(ChatMessage.created_at.asc()).limit(limit).all()
+    return [
+        {
+            "id": m.id,
+            "role": m.role,
+            "content": m.content,
+            "created_at": m.created_at.isoformat() if m.created_at else ""
+        }
+        for m in msgs
+    ]
+
+def clear_chat_history(db: Session, user_id: str) -> bool:
+    db.query(ChatMessage).filter(ChatMessage.user_id == user_id).delete()
+    db.commit()
+    return True
+

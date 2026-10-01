@@ -28,6 +28,7 @@ class User(Base):
     budgets = relationship("Budget", back_populates="user", cascade="all, delete-orphan")
     goals = relationship("Goal", back_populates="user", cascade="all, delete-orphan")
     habits = relationship("Habit", back_populates="user", cascade="all, delete-orphan")
+    chat_messages = relationship("ChatMessage", back_populates="user", cascade="all, delete-orphan")
 
 
 class Transaction(Base):
@@ -97,3 +98,15 @@ class Habit(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="habits")
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    role = Column(String(20), nullable=False)  # "user" or "assistant"
+    content = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    user = relationship("User", back_populates="chat_messages")

@@ -239,7 +239,9 @@ All protected endpoints require the HTTP header: `Authorization: Bearer <JWT_TOK
 | `POST` | `/auth/google` | Verifies Google ID token, registers/logs in user, returns JWT |
 | `GET` | `/` | Health check endpoint |
 | `GET` | `/summary` | Aggregated user metrics, monthly totals, category breakdown, upcoming bills |
-| `POST` | `/chat` | Conversational query to the LangGraph ReAct agent |
+| `POST` | `/chat` | Conversational query to the LangGraph ReAct agent (persisted with memory) |
+| `GET` | `/chat/history` | Fetches user's previous conversation history from Neon PostgreSQL |
+| `DELETE` | `/chat/history` | Clears conversation history and resets agent conversational memory |
 | `POST` | `/scan_receipt` | **OCR Receipt Scanner**: Accepts multipart image file and extracts merchant, amount, date, and category |
 | `POST` | `/add_transaction` | Records a new credit or debit transaction |
 | `PUT` | `/edit_transaction` | Updates an existing transaction |

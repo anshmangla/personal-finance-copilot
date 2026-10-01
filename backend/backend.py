@@ -15,7 +15,7 @@ from database import get_db, init_db
 from models import User
 from auth import verify_google_token, create_access_token, get_current_user, get_user_from_header_or_query
 import db_services
-from agent import ask_agent
+from agent import ask_agent, clear_agent_memory
 from utils import get_summary
 import ocr_service
 
@@ -397,12 +397,38 @@ def export_pdf(
 
 # ---------------- CHAT WITH AI AGENT ---------------- #
 
+@app.get("/chat/history")
+def get_chat_history_endpoint(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    history = db_services.get_chat_history(db, current_user.id)
+    return {"status": "success", "data": history}
+
+@app.delete("/chat/history")
+def clear_chat_history_endpoint(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    db_services.clear_chat_history(db, current_user.id)
+    clear_agent_memory(current_user.id)
+    return {"status": "success", "message": "Chat history and memory cleared."}
+
 @app.post("/chat")
 def chat(
     req: ChatReq,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
+    # 1. Persist user message to PostgreSQL
+    db_services.save_chat_message(db, current_user.id, role="user", content=req.query)
+
+    # 2. Query LangGraph ReAct agent with memory
     response = ask_agent(req.query, user_id=current_user.id)
+
+    # 3. Persist assistant response to PostgreSQL
+    db_services.save_chat_message(db, current_user.id, role="assistant", content=response)
+
     return {"status": "success", "response": response}
 
 @app.get("/")

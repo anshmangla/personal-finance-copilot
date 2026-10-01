@@ -22,3 +22,4 @@ frontend/*.iml
 # OS / Editor
 .DS_Store
 Thumbs.db
+devtools_options.yaml
