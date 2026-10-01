@@ -9,6 +9,7 @@ langgraph
 fpdf2
 sqlalchemy
 psycopg2-binary
+psycopg[binary]
 google-auth
 pyjwt
 requests

@@ -8,9 +8,12 @@ load_dotenv()
 # Read DATABASE_URL from environment (or default to local SQLite for offline development)
 raw_db_url = os.getenv("DATABASE_URL", "sqlite:///./local_finance.db")
 
-# SQLAlchemy requires postgresql:// instead of postgres://
+# In SQLAlchemy 2.0+, 'postgresql://' defaults to psycopg v3.
+# Explicitly use postgresql+psycopg2:// to match psycopg2-binary
 if raw_db_url.startswith("postgres://"):
-    raw_db_url = raw_db_url.replace("postgres://", "postgresql://", 1)
+    raw_db_url = raw_db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+elif raw_db_url.startswith("postgresql://") and not raw_db_url.startswith("postgresql+"):
+    raw_db_url = raw_db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 DATABASE_URL = raw_db_url
 
@@ -18,11 +21,6 @@ DATABASE_URL = raw_db_url
 connect_args = {}
 if DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
-else:
-    # Neon / PostgreSQL settings: enable connection pooling with auto-reconnect
-    connect_args = {
-        "sslmode": "require"
-    }
 
 engine = create_engine(
     DATABASE_URL,
