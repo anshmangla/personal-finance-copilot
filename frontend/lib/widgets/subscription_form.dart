@@ -121,14 +121,14 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: _category,
+              initialValue: _category,
               decoration: const InputDecoration(labelText: 'Category'),
               items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
               onChanged: (val) => setState(() => _category = val!),
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: _billingCycle,
+              initialValue: _billingCycle,
               decoration: const InputDecoration(labelText: 'Billing Cycle'),
               items: const [
                 DropdownMenuItem(value: 'monthly', child: Text('Monthly')),

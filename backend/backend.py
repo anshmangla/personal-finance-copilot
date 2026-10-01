@@ -238,6 +238,22 @@ def delete_subscription_endpoint(
         raise HTTPException(status_code=404, detail="Subscription not found")
     return {"status": "success", "message": "Subscription deleted"}
 
+@app.post("/pay_subscription/{sub_id}")
+def pay_subscription_endpoint(
+    sub_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    result = db_services.mark_subscription_paid(db, current_user.id, sub_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Subscription not found")
+    return {
+        "status": "success",
+        "message": f"Subscription '{result['subscription']['name']}' marked as paid.",
+        "data": result
+    }
+
+
 # ---------------- SUMMARY & BUDGETS & GOALS ---------------- #
 
 @app.get("/summary")

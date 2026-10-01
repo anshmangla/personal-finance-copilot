@@ -2,88 +2,96 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon_Serverless-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://neon.tech/)
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
 [![LangChain](https://img.shields.io/badge/LangChain-LangGraph-1C3C3C?style=for-the-badge)](https://www.langchain.com/)
-[![Groq](https://img.shields.io/badge/LLM-Groq-F55036?style=for-the-badge)](https://groq.com/)
+[![Groq](https://img.shields.io/badge/LLM-Groq_Llama_3-F55036?style=for-the-badge)](https://groq.com/)
 
-An agentic AI-powered personal finance assistant designed to track expenses, parse transaction SMS messages, analyze spending patterns, and provide actionable financial advice through an intelligent conversational copilot.
+An intelligent, multi-tenant agentic personal finance copilot designed to track expenses, parse SMS banking alerts, manage recurring subscriptions, monitor budgets & goals, generate PDF/CSV reports, and provide financial insights through an autonomous conversational AI agent.
 
 ---
 
 ## 🌟 Key Features
 
-- **📊 Comprehensive Financial Dashboard**:
-  - Live total spend, income, and net balance calculation in Indian Rupees (₹).
-  - Category-level breakdown and visual analytics.
-  - Anomaly and spending spike alerts (e.g., crossing monthly thresholds, significant month-over-month jumps).
+- **🔐 Google OAuth 2.0 & Multi-Tenancy**:
+  - Seamless Google Sign-In on mobile with backend server-side Google ID token verification.
+  - Secure stateless JWT issuance and persistent auth session management.
+  - Complete data isolation per authenticated user (`user_id`).
 
-- **🤖 Autonomous ReAct AI Agent**:
-  - Built with **LangChain** and **LangGraph** running on **Groq**.
-  - Equipped with rich toolkits:
+- **🐘 Cloud Database (PostgreSQL on Neon)**:
+  - Powered by serverless **Neon PostgreSQL** via **SQLAlchemy ORM**.
+  - Production-ready schema with models for `User`, `Transaction`, `Subscription`, `Budget`, and `Goal`.
+  - Automatic fallback to local SQLite for offline development.
+
+- **🤖 Autonomous ReAct AI Copilot**:
+  - Built with **LangGraph** and **Groq** high-speed LLM inference (`llama-3.3-70b-versatile`).
+  - Context-aware multi-turn financial assistant equipped with live database tools:
     - `total_spend_tool` & `category_spend_tool`: High-level spend aggregations.
-    - `merchant_spend_tool`: Merchant/store-specific spending analytics (e.g., Swiggy, Zomato, Uber, Amazon, DMRC).
+    - `merchant_spend_tool`: Merchant-specific analytics (e.g., Swiggy, Amazon, Uber, Zomato).
     - `search_transactions_tool`: Keyword-based transaction lookup.
     - `monthly_summary_tool`: Month-over-month cashflow comparisons.
     - `insight_tool` & `recommendation_tool`: Automated spending advice and budget health checks.
-    - `add_goal_tool`: Financial goal tracking.
+    - `add_goal_tool`: Dynamic savings target tracking.
+
+- **🔁 Subscriptions Tracker & One-Tap "Mark as Paid"**:
+  - Keep track of recurring expenses (monthly or yearly cycles).
+  - Upcoming bills banner directly on the Dashboard alerting you to bills due within 14 days or overdue.
+  - **One-Tap "Mark as Paid"**:
+    - Automatically records a debit expense in your transaction ledger with today's date.
+    - Automatically rolls the bill's next due date forward to the next billing cycle (next month or year).
+
+- **🎯 Budgets & Financial Goals**:
+  - Set category spending caps and track progress against actual expenses.
+  - Define savings goals with target amounts and target dates.
+
+- **📄 Statement & Report Exports**:
+  - Instant one-click CSV export of transaction history.
+  - Professional, color-coded PDF financial statements generated dynamically using **ReportLab**.
 
 - **💬 SMS Transaction Parser**:
-  - Automatically parses bank and UPI transaction SMS messages.
-  - Extracts amounts, merchant names, and transaction types.
-  - Uses LLM classification to categorize transactions (`Food`, `Shopping`, `Transport`, `Bills`, etc.).
-  - Built-in duplicate detection before persisting records.
+  - Automatically parse UPI and debit/credit card bank SMS notifications.
+  - Extracts amount, merchant, and classification (`Food`, `Shopping`, `Transport`, `Bills`, etc.) using Groq.
 
-- **🧠 Memory & Habit Detection**:
-  - Detects spending behaviors such as weekend overspending patterns.
-  - Persists long-term habits and user goals to `memory.json`.
-
-- **📱 Modern Cross-Platform Frontend**:
-  - Built with **Flutter** (Android, iOS, Web, Desktop).
-  - Dedicated screens for Dashboard analytics, Manual Transaction Management (Add / Edit / Delete), and an AI Chat interface.
-
-- **🖥️ Alternative Streamlit Interface**:
-  - Lightweight Streamlit app for quick prototyping, visual charts, and direct AI agent queries.
+- **📱 Cross-Platform Flutter Mobile Client**:
+  - Modern Material 3 dark/light responsive interface.
+  - Interactive month picker, visual expense breakdowns, quick transaction editing/deletion, and bottom navigation.
 
 ---
 
-## 🏗️ Architecture & Tech Stack
+## 🏗️ Architecture & Flow
 
 ```mermaid
 flowchart TD
-    subgraph Frontend["Frontend Client"]
-        A[Flutter App / Streamlit UI]
+    subgraph Frontend["Flutter Mobile Client"]
+        A[Google Sign-In]
+        B[Dashboard & Charts]
+        C[One-Tap Pay Banner]
+        D[AI Copilot Chat]
+        E[Budgets, Goals & Reports]
     end
 
-    subgraph Backend["Backend Server (FastAPI)"]
-        B[FastAPI REST Endpoints]
-        C[Transaction Manager]
-        D[LangGraph ReAct Agent]
-        E[SMS Parser]
-        F[Memory Manager]
+    subgraph Backend["FastAPI Server (Deployed on Render)"]
+        F[Auth Service - JWT & Google OAuth]
+        G[REST API Endpoints]
+        H[LangGraph ReAct Agent]
+        I[Report Generator - PDF / CSV]
     end
 
-    subgraph External["External Services & Storage"]
-        G[(data.csv & memory.json)]
-        H[Groq Cloud LLM]
+    subgraph Cloud["Cloud Infrastructure"]
+        J[(Neon Serverless PostgreSQL)]
+        K[Groq Cloud LLM - Llama 3]
+        L[Google Identity Services]
     end
 
-    A <-->|HTTP / JSON| B
-    B --> C
-    B --> D
-    B --> E
-    D <-->|Tool Calling| C
-    D <-->|Prompts & Reasoning| H
-    E -->|Categorization| H
-    C <-->|Read / Write| G
-    F <-->|Persist Habits & Goals| G
+    A <-->|Verify ID Token| L
+    A <-->|Auth JWT| F
+    B & C & E <-->|Authorized REST Calls| G
+    D <-->|Chat Query / User Context| H
+    H <-->|Function Calling Tools| G
+    H <-->|Prompt & Tool Reasoning| K
+    G <-->|SQLAlchemy ORM Queries| J
+    G -->|Export Generation| I
 ```
-
-### Technologies
-
-- **Backend**: Python 3.10+, FastAPI, Uvicorn, LangChain, LangGraph, ChatGroq, Pandas, Pydantic, python-dotenv
-- **Frontend**: Flutter / Dart
-- **Prototyping UI**: Streamlit
-- **Storage**: CSV (`data.csv`) & JSON (`memory.json`)
 
 ---
 
@@ -92,24 +100,33 @@ flowchart TD
 ```
 personal_finance_copilot/
 ├── backend/
-│   ├── .env.example          # Sample environment variables
-│   ├── agent.py              # LangGraph ReAct agent & financial tools
-│   ├── app.py                # Streamlit web dashboard
-│   ├── backend.py            # FastAPI REST API application
-│   ├── data.csv              # Transactions data store
-│   ├── memory.json           # User habits and goals store
-│   ├── memory_manager.py     # Memory persistence utilities
-│   ├── requirements.txt      # Python dependencies
+│   ├── .env.example          # Sample backend environment variables
+│   ├── agent.py              # Multi-tenant LangGraph ReAct agent & tools
+│   ├── auth.py               # Google OAuth verification & JWT helpers
+│   ├── backend.py            # FastAPI main app, router, & endpoints
+│   ├── database.py           # SQLAlchemy engine & Neon Postgres configuration
+│   ├── db_services.py        # Database CRUD services (Transactions, Subscriptions, Budgets, Goals)
+│   ├── models.py             # SQLAlchemy ORM models (User, Transaction, Subscription, Budget, Goal)
+│   ├── report_generator.py   # PDF (ReportLab) and CSV generation utilities
+│   ├── requirements.txt      # Python dependencies (psycopg2-binary, reportlab, etc.)
 │   ├── sms_parser.py         # Regex + LLM SMS transaction extractor
-│   ├── transaction_manager.py# Transaction CRUD operations
-│   └── utils.py              # Analytics, summaries, and spending metrics
+│   ├── transaction_manager.py# Legacy/helper analytics & metric calculations
+│   └── utils.py              # Spending calculations & trend analysis
 ├── frontend/
 │   ├── lib/
-│   │   ├── main.dart         # Flutter entry point & bottom navigation
+│   │   ├── main.dart                 # App initialization & navigation
+│   │   ├── services/
+│   │   │   ├── api_client.dart       # HTTP client with JWT interceptor
+│   │   │   └── auth_service.dart     # Google Sign-In & token storage
 │   │   └── screens/
-│   │       ├── dashboard_screen.dart    # Overview metrics & charts
-│   │       ├── add_expense_screen.dart  # Transaction management
-│   │       └── chat_screen.dart         # Conversational agent UI
+│   │       ├── auth_screen.dart          # Google login screen
+│   │       ├── dashboard_screen.dart     # Overview metrics, upcoming bills, one-tap pay
+│   │       ├── chat_screen.dart          # Agentic conversational UI
+│   │       ├── add_expense_screen.dart   # Transaction entry & SMS parsing
+│   │       ├── subscriptions_screen.dart # Recurring bill management & one-tap pay
+│   │       ├── budgets_screen.dart       # Category spending budgets
+│   │       ├── goals_screen.dart         # Financial savings targets
+│   │       └── export_screen.dart        # PDF / CSV report downloads
 │   └── pubspec.yaml          # Flutter dependencies
 ├── .gitignore
 └── README.md
@@ -117,15 +134,29 @@ personal_finance_copilot/
 
 ---
 
-## 🚀 Getting Started
+## ⚙️ Environment Variables
 
-### Prerequisites
+Create a `.env` file in the `backend/` directory (or add them as Environment Variables in your Render / deployment dashboard):
 
-- **Python**: 3.10 or higher
-- **Flutter SDK**: 3.x or higher (for the mobile/web frontend)
-- **Groq API Key**: Obtain a free key from [Groq Console](https://console.groq.com/)
+```env
+# Neon Serverless PostgreSQL Database Connection String
+DATABASE_URL=postgresql://<user>:<password>@<ep-pooler-id>.neon.tech/<dbname>?sslmode=require
+
+# Groq Cloud API Key
+GROQ_API_KEY=gsk_your_groq_api_key_here
+
+# JWT Secret Key for token signing
+JWT_SECRET_KEY=your_super_secret_jwt_key_here
+
+# Google OAuth Web Client ID (from Google Cloud Console)
+GOOGLE_WEB_CLIENT_ID=your_google_web_client_id.apps.googleusercontent.com
+```
+
+> **Note**: For mobile Google Sign-In, configure `GOOGLE_WEB_CLIENT_ID` in `frontend/lib/services/auth_service.dart` as the `serverClientId`, and register your Android Client ID with package name `com.example.finance_copilot_app` and debug SHA-1 in the Google Cloud Console.
 
 ---
+
+## 🚀 Setup & Execution
 
 ### 1. Backend Setup
 
@@ -135,14 +166,13 @@ personal_finance_copilot/
    ```
 
 2. **Create and activate a virtual environment**:
-   - On Windows (PowerShell):
+   - Windows (PowerShell):
      ```powershell
      python -m venv venv
      .\venv\Scripts\Activate.ps1
      ```
-   - On Linux / macOS:
+   - Linux / macOS:
      ```bash
-     bash
      python3 -m venv venv
      source venv/bin/activate
      ```
@@ -152,22 +182,11 @@ personal_finance_copilot/
    pip install -r requirements.txt
    ```
 
-4. **Configure environment variables**:
-   Create a `.env` file inside `backend/`:
-   ```env
-   GROQ_API_KEY=gsk_your_groq_api_key_here
-   ```
-
-5. **Start the FastAPI server**:
+4. **Run the FastAPI server**:
    ```bash
    uvicorn backend:app --reload --port 8000
    ```
-   The backend API will be running at `http://127.0.0.1:8000`. Interactive Swagger documentation is available at `http://127.0.0.1:8000/docs`.
-
-6. *(Optional)* **Run the Streamlit Dashboard**:
-   ```bash
-   streamlit run app.py
-   ```
+   Interactive Swagger API documentation is available at `http://127.0.0.1:8000/docs`.
 
 ---
 
@@ -183,51 +202,53 @@ personal_finance_copilot/
    flutter pub get
    ```
 
-3. **Launch the application**:
-   - Run on Chrome / Web:
-     ```bash
-     flutter run -d chrome
-     ```
-   - Run on connected Android / iOS device:
-     ```bash
-     flutter run
-     ```
+3. **Configure API Base URL**:
+   In `frontend/lib/services/api_client.dart`:
+   - For local emulator: `http://10.0.2.2:8000`
+   - For local device / LAN: `http://<your-lan-ip>:8000`
+   - For cloud backend (Render): `https://personal-finance-copilot-m427.onrender.com`
 
-> **Note**: If running the Flutter app on an Android emulator or physical device, ensure the backend API base URL points to your host IP address (e.g., `http://10.0.2.2:8000` for Android emulator) rather than `localhost`.
+4. **Launch the application**:
+   ```bash
+   flutter run
+   ```
 
 ---
 
 ## 📡 API Reference
 
+All protected endpoints require the HTTP header: `Authorization: Bearer <JWT_TOKEN>` (or query parameter `?token=<JWT_TOKEN>` for export downloads).
+
 | Method | Endpoint | Description |
 |---|---|---|
+| `POST` | `/auth/google` | Verifies Google ID token, registers/logs in user, returns JWT |
 | `GET` | `/` | Health check endpoint |
-| `GET` | `/summary` | Returns total spend, income, net balance, category breakdown, and transactions |
-| `POST` | `/chat` | Sends a natural language query to the LangGraph ReAct financial agent |
-| `POST` | `/add_transaction` | Adds a new transaction (`amount`, `merchant`, `category`, `type`, `date`) |
-| `PUT` | `/edit_transaction` | Updates an existing transaction by `id` |
-| `DELETE` | `/delete_transaction/{id}` | Deletes a transaction by `id` |
+| `GET` | `/summary` | Aggregated user metrics, monthly totals, category breakdown, upcoming bills |
+| `POST` | `/chat` | Conversational query to the LangGraph ReAct agent |
+| `POST` | `/add_transaction` | Records a new credit or debit transaction |
+| `PUT` | `/edit_transaction` | Updates an existing transaction |
+| `DELETE` | `/delete_transaction/{id}` | Deletes a transaction by ID |
+| `GET` | `/subscriptions` | Lists all recurring subscriptions and bills |
+| `POST` | `/subscriptions` | Creates a new recurring subscription |
+| `DELETE` | `/subscriptions/{id}` | Removes a subscription |
+| `POST` | `/pay_subscription/{id}` | **One-Tap Pay**: Logs transaction as expense and advances billing cycle |
+| `GET` | `/budgets` | Returns category budget limits and spent amounts |
+| `POST` | `/budgets` | Creates or updates a category budget limit |
+| `GET` | `/goals` | Lists savings goals and progress |
+| `POST` | `/goals` | Creates or updates a savings goal |
+| `GET` | `/export/csv` | Downloads CSV export of user transactions |
+| `GET` | `/export/pdf` | Generates and downloads a styled PDF financial statement |
 
 ---
 
-## 💬 Example AI Assistant Queries
+## 💬 Example Copilot Prompts
 
-You can ask the Copilot questions such as:
-- *"How much did I spend on Swiggy and Zomato this month?"*
+Try asking the AI Assistant:
+- *"How much did I spend on dining and groceries this month?"*
 - *"What is my highest spending category?"*
-- *"Give me insights on my spending trends and how I can save more."*
-- *"Show me my total income and remaining balance."*
-- *"Set a goal to save ₹20,000 for emergency fund."*
-
----
-
-## 🗺️ Roadmap
-
-- [ ] Automatic Android SMS background listener integration.
-- [ ] Multi-account and multi-currency support.
-- [ ] Database migration (PostgreSQL / SQLite via SQLAlchemy).
-- [ ] Recurring subscription detection & notification reminders.
-- [ ] Export transactions to CSV / PDF reports.
+- *"Am I on track with my monthly budget?"*
+- *"Set a goal to save ₹50,000 for vacation."*
+- *"Give me tips on how to cut down my discretionary spending."*
 
 ---
 

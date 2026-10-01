@@ -392,6 +392,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Future<void> _paySubscription(String subId, String name) async {
+    try {
+      final res = await ApiClient.post('/pay_subscription/$subId');
+      if (res.statusCode == 200) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Paid $name! Logged as expense & next due date updated.'),
+            backgroundColor: Colors.teal,
+          ),
+        );
+        fetchSummary();
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to mark subscription as paid')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -472,6 +496,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           PopupMenuButton<String>(
             icon: const Icon(Icons.file_download),
             onSelected: (value) async {
+              final messenger = ScaffoldMessenger.of(context);
               try {
                 if (value == 'csv') {
                   await ExportService.exportCsv();
@@ -479,7 +504,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   await ExportService.exportPdf();
                 }
               } catch (e) {
-                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+                if (mounted) messenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
               }
             },
             itemBuilder: (context) => [
@@ -567,16 +592,90 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.orange.shade300),
                     ),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.warning_amber_rounded, color: Colors.orange.shade800),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'You have ${(summaryData?['upcoming_reminders'] as List).length} upcoming bill(s) due soon.',
-                            style: TextStyle(color: Colors.orange.shade900, fontWeight: FontWeight.bold),
-                          ),
+                        Row(
+                          children: [
+                            Icon(Icons.notification_important_rounded, color: Colors.orange.shade800, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Upcoming Bills (${(summaryData?['upcoming_reminders'] as List).length})',
+                                style: TextStyle(
+                                  color: Colors.orange.shade900,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 8),
+                        ...((summaryData?['upcoming_reminders'] as List).map((bill) {
+                          final billMap = bill as Map<String, dynamic>;
+                          final name = billMap['name']?.toString() ?? 'Bill';
+                          final amount = (billMap['amount'] as num?)?.toDouble() ?? 0.0;
+                          final days = billMap['days_remaining'] as int? ?? 0;
+                          final subId = billMap['id']?.toString() ?? '';
+                          final dueText = days < 0
+                              ? 'Overdue by ${-days}d'
+                              : days == 0
+                                  ? 'Due Today'
+                                  : days == 1
+                                      ? 'Due Tomorrow'
+                                      : 'Due in $days days';
+
+                          return Container(
+                            margin: const EdgeInsets.only(top: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.orange.shade200),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        name,
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '$dueText • ₹${amount.toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: days <= 1 ? Colors.red.shade700 : Colors.grey.shade700,
+                                          fontWeight: days <= 1 ? FontWeight.w600 : FontWeight.normal,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (subId.isNotEmpty)
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.teal,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      visualDensity: VisualDensity.compact,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    icon: const Icon(Icons.check, size: 14),
+                                    label: const Text('Pay', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                    onPressed: () => _paySubscription(subId, name),
+                                  ),
+                              ],
+                            ),
+                          );
+                        })),
                       ],
                     ),
                   ),

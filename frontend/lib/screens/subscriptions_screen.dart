@@ -53,6 +53,30 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
     }
   }
 
+  Future<void> _paySubscription(String subId, String name) async {
+    try {
+      final res = await ApiClient.post('/pay_subscription/$subId');
+      if (res.statusCode == 200) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Paid $name! Logged as expense & next due date updated.'),
+            backgroundColor: Colors.teal,
+          ),
+        );
+        _fetchSubscriptions();
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to mark subscription as paid')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
   void _showSubscriptionForm({Map<String, dynamic>? subscription}) {
     showDialog(
       context: context,
@@ -98,9 +122,20 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
                     ),
                     title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text('Due: $nextDate • $cycle'),
-                    trailing: Text(
-                      '₹${amount.toStringAsFixed(2)}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '₹${amount.toStringAsFixed(2)}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                        const SizedBox(width: 4),
+                        IconButton(
+                          icon: const Icon(Icons.check_circle_outline, color: Colors.teal),
+                          tooltip: 'Mark as Paid & Log Expense',
+                          onPressed: () => _paySubscription(sub['id'].toString(), name),
+                        ),
+                      ],
                     ),
                     onTap: () => _showSubscriptionForm(subscription: sub),
                     onLongPress: () {

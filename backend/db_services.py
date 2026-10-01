@@ -202,6 +202,70 @@ def delete_subscription(db: Session, user_id: str, sub_id: str) -> bool:
     db.commit()
     return True
 
+def mark_subscription_paid(db: Session, user_id: str, sub_id: str) -> Optional[dict]:
+    import calendar
+    sub = db.query(Subscription).filter(
+        Subscription.id == sub_id,
+        Subscription.user_id == user_id
+    ).first()
+    if not sub:
+        return None
+
+    # 1. Automatically log expense in Transaction table
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    tx = Transaction(
+        id=str(uuid.uuid4())[:8],
+        user_id=user_id,
+        amount=sub.amount,
+        merchant=sub.name,
+        category=sub.category or "Bills",
+        type="debit",
+        date=today_str
+    )
+    db.add(tx)
+
+    # 2. Advance next_payment_date to next cycle
+    try:
+        current_due = datetime.strptime(str(sub.next_payment_date).strip(), "%Y-%m-%d").date()
+    except Exception:
+        current_due = datetime.now().date()
+
+    if sub.billing_cycle.lower() == "yearly":
+        try:
+            next_due = current_due.replace(year=current_due.year + 1)
+        except ValueError:
+            next_due = current_due + timedelta(days=365)
+    else:
+        month = current_due.month + 1
+        year = current_due.year
+        if month > 12:
+            month = 1
+            year += 1
+        max_day = calendar.monthrange(year, month)[1]
+        day = min(current_due.day, max_day)
+        next_due = current_due.replace(year=year, month=month, day=day)
+
+    sub.next_payment_date = next_due.strftime("%Y-%m-%d")
+    db.commit()
+    db.refresh(sub)
+    db.refresh(tx)
+
+    return {
+        "transaction": {
+            "id": tx.id,
+            "amount": tx.amount,
+            "merchant": tx.merchant,
+            "category": tx.category,
+            "date": tx.date
+        },
+        "subscription": {
+            "id": sub.id,
+            "name": sub.name,
+            "amount": sub.amount,
+            "next_payment_date": sub.next_payment_date
+        }
+    }
+
 def get_upcoming_reminders(db: Session, user_id: str, days_ahead: int = 14) -> List[dict]:
     df = get_subscriptions_df(db, user_id)
     if df.empty or "next_payment_date" not in df.columns:
@@ -216,6 +280,7 @@ def get_upcoming_reminders(db: Session, user_id: str, days_ahead: int = 14) -> L
             due_date = datetime.strptime(str(row["next_payment_date"]).strip(), "%Y-%m-%d").date()
             if today - timedelta(days=30) <= due_date <= target_date:
                 reminders.append({
+                    "id": str(row["id"]),
                     "name": row["name"],
                     "amount": float(row["amount"]),
                     "due_date": str(due_date),
@@ -227,6 +292,7 @@ def get_upcoming_reminders(db: Session, user_id: str, days_ahead: int = 14) -> L
             
     reminders.sort(key=lambda x: x["days_remaining"])
     return reminders
+
 
 
 # ---------------- BUDGETS & GOALS ---------------- #
