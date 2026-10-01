@@ -63,6 +63,22 @@ class ApiClient {
     return response;
   }
 
+  static Future<http.Response> multipartPost(String path, {required String fileField, required String filePath}) async {
+    final uri = _uri(path);
+    final request = http.MultipartRequest('POST', uri);
+    
+    final headers = _buildHeaders();
+    headers.remove('Content-Type'); // Let http package set the multipart boundary
+    request.headers.addAll(headers);
+    
+    request.files.add(await http.MultipartFile.fromPath(fileField, filePath));
+    
+    final streamedResponse = await request.send().timeout(const Duration(seconds: 60));
+    final response = await http.Response.fromStream(streamedResponse);
+    _handleAuthErrors(response);
+    return response;
+  }
+
   static void _handleAuthErrors(http.Response response) {
     if (response.statusCode == 401) {
       AuthService().signOut();

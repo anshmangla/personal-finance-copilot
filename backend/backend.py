@@ -4,7 +4,7 @@ import csv
 from typing import Optional
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
@@ -17,6 +17,7 @@ from auth import verify_google_token, create_access_token, get_current_user, get
 import db_services
 from agent import ask_agent
 from utils import get_summary
+import ocr_service
 
 app = FastAPI(title="Finance Copilot API")
 
@@ -157,6 +158,25 @@ def get_me(current_user: User = Depends(get_current_user)):
     }
 
 # ---------------- TRANSACTIONS ---------------- #
+
+@app.post("/scan_receipt")
+async def scan_receipt(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
+):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image.")
+        
+    try:
+        file_bytes = await file.read()
+        parsed_data = ocr_service.scan_receipt_image(file_bytes)
+        return {
+            "status": "success",
+            "data": parsed_data
+        }
+    except Exception as e:
+        print(f"OCR Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/add_transaction")
 def add_transaction_endpoint(

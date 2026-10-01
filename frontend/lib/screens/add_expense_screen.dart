@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../services/api_client.dart';
 
 class AddExpenseScreen extends StatefulWidget {
@@ -17,7 +19,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   final List<String> _expenseCategories = [
     'Food', 'Shopping', 'Transport', 'Bills',
-    'Entertainment', 'Transfer', 'Travel', 'Other'
+    'Entertainment', 'Transfer', 'Travel', 'Health', 'Other'
   ];
 
   final List<String> _incomeCategories = [
@@ -27,6 +29,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   late String _selectedCategory;
   bool _isSubmitting = false;
+  bool _isScanning = false;
 
   @override
   void initState() {
@@ -48,6 +51,104 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       setState(() {
         _selectedDate = picked;
       });
+    }
+  }
+
+  Future<void> _scanReceipt() async {
+    final ImagePicker picker = ImagePicker();
+    XFile? pickedFile;
+
+    // Ask user for source
+    await showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take a Photo'),
+              onTap: () async {
+                Navigator.pop(ctx);
+                pickedFile = await picker.pickImage(source: ImageSource.camera, imageQuality: 50);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choose from Gallery'),
+              onTap: () async {
+                Navigator.pop(ctx);
+                pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (pickedFile == null) return;
+
+    setState(() {
+      _isScanning = true;
+    });
+
+    try {
+      final res = await ApiClient.multipartPost(
+        '/scan_receipt',
+        fileField: 'file',
+        filePath: pickedFile!.path,
+      );
+
+      if (res.statusCode == 200) {
+        final body = jsonDecode(res.body);
+        final data = body['data'];
+        
+        setState(() {
+          _txType = 'debit';
+          if (data['merchant'] != null) {
+            _merchantController.text = data['merchant'].toString();
+          }
+          if (data['amount'] != null) {
+            _amountController.text = data['amount'].toString();
+          }
+          if (data['date'] != null) {
+            try {
+              _selectedDate = DateTime.parse(data['date'].toString());
+            } catch (_) {}
+          }
+          if (data['category'] != null) {
+            final parsedCat = data['category'].toString();
+            if (_expenseCategories.contains(parsedCat)) {
+              _selectedCategory = parsedCat;
+            } else {
+              _selectedCategory = 'Other';
+            }
+          }
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Receipt scanned successfully! Please review the details.'), backgroundColor: Colors.teal),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to scan receipt. Please enter manually.')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isScanning = false;
+        });
+      }
     }
   }
 
@@ -136,6 +237,21 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
+        actions: [
+          if (!isCredit) // Only make sense to scan receipts for expenses
+            _isScanning
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Center(
+                      child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                    ),
+                  )
+                : IconButton(
+                    icon: const Icon(Icons.document_scanner),
+                    tooltip: 'Scan Receipt',
+                    onPressed: _scanReceipt,
+                  ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

@@ -13,3 +13,4 @@ psycopg[binary]
 google-auth
 pyjwt
 requests
+python-multipart
