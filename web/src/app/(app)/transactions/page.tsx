@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Upload } from "lucide-react"
 
 export default function TransactionsPage() {
@@ -88,10 +88,8 @@ export default function TransactionsPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Transactions</h1>
         
+        <Button onClick={() => setDialogOpen(true)}>+ Add Transaction</Button>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>+ Add Transaction</Button>
-          </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add Transaction</DialogTitle>
