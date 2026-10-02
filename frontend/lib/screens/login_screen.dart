@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 
@@ -144,20 +145,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 18),
-
-                  // Dev / Guest Login Button
-                  TextButton(
-                    onPressed: _handleDevSignIn,
-                    child: Text(
-                      'Or continue with Test Account (Dev Mode)',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade600,
-                        decoration: TextDecoration.underline,
+                  if (kDebugMode) ...[
+                    const SizedBox(height: 18),
+                    // Dev / Guest Login Button (Auto-hidden in Release mode)
+                    TextButton(
+                      onPressed: _handleDevSignIn,
+                      child: Text(
+                        'Or continue with Test Account (Dev Mode)',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
 
                 const SizedBox(height: 40),

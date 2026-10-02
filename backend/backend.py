@@ -123,7 +123,16 @@ def google_auth(req: GoogleAuthReq, db: Session = Depends(get_db)):
 
 @app.post("/auth/dev_login")
 def dev_login(req: DevLoginReq, db: Session = Depends(get_db)):
-    """Development shortcut to generate a token without Google OAuth credentials."""
+    """Development shortcut to generate a token without Google OAuth credentials.
+    Disabled in production mode.
+    """
+    env = os.getenv("ENVIRONMENT", "development").strip().lower()
+    if env == "production":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Dev login is disabled in production environment."
+        )
+
     email = req.email or "test@financecopilot.com"
     user = db.query(User).filter(User.email == email).first()
     if not user:
