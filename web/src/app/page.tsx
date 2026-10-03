@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { GoogleLogin } from "@react-oauth/google"
-import { Button } from "@/components/ui/button"
-import { loginWithGoogle, devLogin } from "@/lib/api"
+import { loginWithGoogle } from "@/lib/api"
 import { Wallet, ShieldCheck } from "lucide-react"
 
 export default function LoginPage() {
@@ -50,26 +49,6 @@ export default function LoginPage() {
     }
   }
 
-  const handleDevLogin = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const res = await devLogin()
-      if (res?.access_token) {
-        localStorage.setItem("access_token", res.access_token)
-        if (res.user) {
-          localStorage.setItem("user_profile", JSON.stringify(res.user))
-        }
-        router.push("/dashboard")
-      }
-    } catch (err: any) {
-      console.error("Dev login error:", err)
-      setError(err?.response?.data?.detail || "Dev login failed.")
-    } finally {
-      setLoading(false)
-    }
-  }
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 p-6">
       <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-xl">
@@ -98,38 +77,17 @@ export default function LoginPage() {
               Signing you in...
             </div>
           ) : (
-            <>
-              {/* Google OAuth Login Button */}
-              <div className="flex w-full justify-center">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => setError("Google Sign-In was cancelled or failed.")}
-                  useOneTap={false}
-                  theme="outline"
-                  size="large"
-                  shape="pill"
-                  width="320"
-                />
-              </div>
-
-              <div className="relative my-2 w-full text-center">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200" />
-                </div>
-                <span className="relative bg-white px-3 text-xs uppercase tracking-wider text-slate-400">
-                  Or test with
-                </span>
-              </div>
-
-              {/* Dev Test Account Login */}
-              <Button
-                variant="outline"
-                className="w-full rounded-full py-5 text-sm font-semibold border-slate-300 hover:bg-slate-50"
-                onClick={handleDevLogin}
-              >
-                Continue with Test Account (Dev Mode)
-              </Button>
-            </>
+            <div className="flex w-full justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError("Google Sign-In was cancelled or failed.")}
+                useOneTap={false}
+                theme="outline"
+                size="large"
+                shape="pill"
+                width="320"
+              />
+            </div>
           )}
         </div>
 

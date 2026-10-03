@@ -171,10 +171,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 )}
                 <div className="overflow-hidden">
                   <p className="text-sm font-semibold text-slate-900 truncate">
-                    {user?.name || "Test User"}
+                    {user?.name || "User"}
                   </p>
                   <p className="text-xs text-slate-500 truncate">
-                    {user?.email || "test@financecopilot.com"}
+                    {user?.email || ""}
                   </p>
                 </div>
               </div>
