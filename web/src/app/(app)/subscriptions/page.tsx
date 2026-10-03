@@ -139,7 +139,7 @@ export default function SubscriptionsPage() {
         </div>
       ) : subscriptions.length === 0 ? (
         <div className="bg-card rounded-2xl border border-border p-16 text-center shadow-sm">
-          <div className="bg-indigo-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="bg-indigo-50 dark:bg-indigo-950 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
             <CreditCard className="h-10 w-10 text-indigo-400" />
           </div>
           <h2 className="text-xl font-bold text-foreground mb-2">No active subscriptions</h2>
@@ -165,19 +165,19 @@ export default function SubscriptionsPage() {
               >
                 {/* Glow effect for due soon */}
                 {(isOverdue || isDueSoon) && (
-                  <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2 ${isOverdue ? 'bg-rose-500/20' : 'bg-amber-500/20'}`} />
+                  <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2 ${isOverdue ? 'bg-rose-50 dark:bg-rose-950/20' : 'bg-amber-50 dark:bg-amber-950/20'}`} />
                 )}
 
                 <div>
                   <div className="flex justify-between items-start mb-4">
-                    <div className={`p-3 rounded-xl ${isOverdue ? 'bg-rose-100 text-rose-600' : isDueSoon ? 'bg-amber-100 text-amber-600' : 'bg-indigo-50 text-indigo-600'}`}>
+                    <div className={`p-3 rounded-xl ${isOverdue ? 'bg-rose-100 dark:bg-rose-900/50 text-rose-600' : isDueSoon ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400' : 'bg-indigo-50 dark:bg-indigo-950 text-indigo-600'}`}>
                       <IconComponent className="h-6 w-6" />
                     </div>
                     <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon-sm" onClick={() => handleOpenEdit(sub)} className="h-8 w-8 rounded-full text-muted-foreground hover:text-blue-600 hover:bg-blue-50">
+                      <Button variant="ghost" size="icon-sm" onClick={() => handleOpenEdit(sub)} className="h-8 w-8 rounded-full text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30">
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon-sm" onClick={() => { setSelectedSub(sub); setDeleteConfirmOpen(true); }} className="h-8 w-8 rounded-full text-muted-foreground hover:text-red-600 hover:bg-red-50">
+                      <Button variant="ghost" size="icon-sm" onClick={() => { setSelectedSub(sub); setDeleteConfirmOpen(true); }} className="h-8 w-8 rounded-full text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:bg-red-950/30 dark:hover:bg-red-950/30">
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
@@ -196,7 +196,7 @@ export default function SubscriptionsPage() {
                       <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1">
                         <CalIcon className="h-3.5 w-3.5" /> Next Payment
                       </p>
-                      <p className={`text-sm font-bold ${isOverdue ? 'text-rose-600' : isDueSoon ? 'text-amber-600' : 'text-foreground'}`}>
+                      <p className={`text-sm font-bold ${isOverdue ? 'text-rose-600' : isDueSoon ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'}`}>
                         {sub.next_payment_date}
                         {isOverdue && " (Overdue)"}
                       </p>
@@ -207,7 +207,7 @@ export default function SubscriptionsPage() {
                   </div>
 
                   <Button 
-                    className={`w-full font-bold rounded-xl ${isOverdue || isDueSoon ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-muted hover:bg-slate-200 text-foreground shadow-none'}`} 
+                    className={`w-full font-bold rounded-xl ${isOverdue || isDueSoon ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-muted hover:bg-muted/80 text-foreground shadow-none'}`} 
                     onClick={() => handlePay(sub.id, sub.name)}
                   >
                     <CheckCircle2 className="h-4 w-4 mr-2" />
@@ -262,7 +262,7 @@ export default function SubscriptionsPage() {
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <DialogContent className="sm:max-w-sm rounded-2xl">
           <DialogHeader><DialogTitle className="text-xl font-bold">Delete Subscription?</DialogTitle></DialogHeader>
-          <div className="p-4 bg-red-50 rounded-xl border border-red-100 my-2">
+          <div className="p-4 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-100 dark:border-red-900/50 my-2">
             <p className="text-sm text-red-800">Stop tracking <span className="font-bold">{selectedSub?.name}</span>? This does not cancel your actual subscription with the merchant.</p>
           </div>
           <div className="flex justify-end gap-3 mt-2">

@@ -271,7 +271,7 @@ export default function ChatPage() {
                           <div className="whitespace-pre-wrap">{msg.content}</div>
                         ) : (
                           <>
-                            <div className="prose prose-sm prose-slate max-w-none prose-p:leading-relaxed prose-headings:font-bold prose-a:text-blue-600 prose-table:w-full prose-table:border-collapse prose-th:bg-muted prose-th:p-2 prose-th:border prose-th:border-border prose-th:text-left prose-td:p-2 prose-td:border prose-td:border-border prose-strong:text-foreground prose-ul:my-2 prose-li:my-0 pb-1">
+                            <div className="prose prose-sm prose-slate dark:prose-invert max-w-none prose-p:leading-relaxed prose-headings:font-bold prose-a:text-blue-600 prose-table:w-full prose-table:border-collapse prose-th:bg-muted prose-th:p-2 prose-th:border prose-th:border-border prose-th:text-left prose-td:p-2 prose-td:border prose-td:border-border prose-strong:text-foreground prose-ul:my-2 prose-li:my-0 pb-1">
                               <ReactMarkdown>{msg.content}</ReactMarkdown>
                             </div>
                             <button 
@@ -334,7 +334,7 @@ export default function ChatPage() {
                 <button
                   key={i}
                   onClick={() => handleSend(s)}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-100"
+                  className="text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:bg-blue-900/50 transition-colors border border-blue-100 dark:border-blue-900/50"
                 >
                   {s}
                 </button>

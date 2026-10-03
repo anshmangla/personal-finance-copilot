@@ -201,7 +201,7 @@ export default function BudgetsPage() {
             <CardContent className="p-6">
               {budgetKeys.length === 0 ? (
                 <div className="text-center py-10">
-                  <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="bg-blue-50 dark:bg-blue-950 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Target className="h-8 w-8 text-blue-300" />
                   </div>
                   <p className="font-semibold text-foreground mb-1">No budgets set</p>
@@ -220,7 +220,7 @@ export default function BudgetsPage() {
                       <motion.div 
                         whileHover={{ y: -2 }}
                         key={category} 
-                        className={`flex flex-col items-center text-center p-4 rounded-2xl border ${isOver ? 'bg-rose-50 border-rose-100 shadow-sm' : isWarning ? 'bg-amber-50 border-amber-100 shadow-sm' : 'bg-muted border-border'}`}
+                        className={`flex flex-col items-center text-center p-4 rounded-2xl border ${isOver ? 'bg-rose-50 dark:bg-rose-950 border-rose-100 dark:border-rose-900/50 shadow-sm' : isWarning ? 'bg-amber-50 dark:bg-amber-950 border-amber-100 dark:border-amber-900/50 shadow-sm' : 'bg-muted border-border'}`}
                       >
                         <h4 className="font-bold text-foreground mb-3">{category}</h4>
                         <CircularProgress value={spent} max={limit} size={100} strokeWidth={8} />
@@ -230,7 +230,7 @@ export default function BudgetsPage() {
                             <span className="text-muted-foreground">Limit: <strong>₹{limit.toFixed(2)}</strong></span>
                           </div>
                           {isOver && (
-                            <div className="flex items-center justify-center gap-1 text-[10px] uppercase font-bold text-rose-600 bg-rose-100 py-1 px-2 rounded-full mt-2">
+                            <div className="flex items-center justify-center gap-1 text-[10px] uppercase font-bold text-rose-600 bg-rose-100 dark:bg-rose-900/50 py-1 px-2 rounded-full mt-2">
                               <AlertTriangle className="h-3 w-3" /> Over Budget
                             </div>
                           )}
@@ -254,7 +254,7 @@ export default function BudgetsPage() {
             <CardContent className="p-6">
               {goals.length === 0 ? (
                 <div className="text-center py-10">
-                  <div className="bg-indigo-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="bg-indigo-50 dark:bg-indigo-950 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Flag className="h-8 w-8 text-indigo-300" />
                   </div>
                   <p className="font-semibold text-foreground mb-1">No goals defined</p>
@@ -270,7 +270,7 @@ export default function BudgetsPage() {
                       className="group flex items-center justify-between p-4 bg-card border border-border rounded-2xl hover:border-indigo-200 hover:shadow-md transition-all"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600">
+                        <div className="h-10 w-10 bg-indigo-50 dark:bg-indigo-950 rounded-full flex items-center justify-center text-indigo-600">
                           <CheckCircle2 className="h-5 w-5" />
                         </div>
                         <p className="font-semibold text-foreground">{g}</p>
@@ -279,7 +279,7 @@ export default function BudgetsPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDeleteGoal(idx)}
-                        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-opacity rounded-full h-8 w-8"
+                        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-opacity rounded-full h-8 w-8"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

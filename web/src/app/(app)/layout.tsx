@@ -127,7 +127,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <h2 className="text-base font-extrabold text-foreground leading-tight tracking-tight">
                   Finance Copilot
                 </h2>
-                <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider">AI Assistant</p>
+                <p className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">AI Assistant</p>
               </div>
             </div>
           </SidebarHeader>
@@ -162,7 +162,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                           >
                             <item.icon
                               className={`h-4 w-4 transition-colors ${
-                                isActive ? "text-blue-600" : "text-muted-foreground group-hover:text-muted-foreground"
+                                isActive ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground group-hover:text-muted-foreground"
                               }`}
                             />
                             <span>{item.title}</span>
@@ -234,7 +234,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 className="gap-2 text-xs font-bold rounded-full shadow-sm bg-card hover:bg-muted border-border transition-all hover:shadow"
                 onClick={() => setExportModalOpen(true)}
               >
-                <Download className="h-3.5 w-3.5 text-blue-600" />
+                <Download className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                 <span className="hidden sm:inline">Export Report</span>
               </Button>
             </div>

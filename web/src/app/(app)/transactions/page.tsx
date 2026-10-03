@@ -159,7 +159,7 @@ export default function TransactionsPage() {
         <div className="flex gap-2">
           <Button 
             variant={typeFilter === "all" ? "default" : "outline"} 
-            className={`rounded-xl ${typeFilter === 'all' ? 'bg-slate-800 text-white' : ''}`}
+            className={`rounded-xl ${typeFilter === 'all' ? 'bg-foreground text-background' : ''}`}
             onClick={() => setTypeFilter("all")}
           >
             All
@@ -223,7 +223,7 @@ export default function TransactionsPage() {
                     </div>
 
                     <div className="col-span-4 flex items-center gap-3">
-                      <div className={`hidden md:flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${isCredit ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                      <div className={`hidden md:flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${isCredit ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400'}`}>
                         {isCredit ? <ArrowDownLeft className="h-5 w-5" /> : <ArrowUpRight className="h-5 w-5" />}
                       </div>
                       <div className="truncate">
@@ -240,7 +240,7 @@ export default function TransactionsPage() {
 
                     <div className="col-span-2 flex flex-row md:flex-col justify-between md:justify-start text-right">
                       <span className="text-sm font-semibold text-foreground md:hidden">Amount</span>
-                      <span className={`font-extrabold text-base ${isCredit ? 'text-emerald-600' : 'text-foreground'}`}>
+                      <span className={`font-extrabold text-base ${isCredit ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'}`}>
                         {isCredit ? "+" : "-"}₹{Number(tx.amount).toFixed(2)}
                       </span>
                     </div>
@@ -269,22 +269,22 @@ export default function TransactionsPage() {
           </DialogHeader>
 
           {/* AI Receipt Scanner */}
-          <div className="rounded-xl border-2 border-dashed border-indigo-200 bg-indigo-50/50 p-6 flex flex-col items-center justify-center text-center">
+          <div className="rounded-xl border-2 border-dashed border-indigo-200 bg-indigo-50 dark:bg-indigo-950/50 p-6 flex flex-col items-center justify-center text-center">
             <input
               type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleScanReceipt}
             />
             {isScanning ? (
               <div className="flex flex-col items-center gap-3">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
-                <p className="text-sm font-medium text-indigo-700 animate-pulse">Extracting receipt data with AI...</p>
+                <p className="text-sm font-medium text-indigo-700 dark:text-indigo-400 animate-pulse">Extracting receipt data with AI...</p>
               </div>
             ) : (
               <>
-                <div className="bg-indigo-100 p-3 rounded-full mb-3 text-indigo-600">
+                <div className="bg-indigo-100 dark:bg-indigo-900/50 p-3 rounded-full mb-3 text-indigo-600">
                   <Camera className="h-6 w-6" />
                 </div>
                 <h4 className="font-bold text-indigo-900 mb-1">Scan Receipt</h4>
-                <p className="text-xs text-indigo-700/80 mb-4 max-w-[250px]">Upload a photo of a receipt and AI will automatically extract the details.</p>
+                <p className="text-xs text-indigo-700 dark:text-indigo-400/80 mb-4 max-w-[250px]">Upload a photo of a receipt and AI will automatically extract the details.</p>
                 <Button onClick={() => fileInputRef.current?.click()} size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full">
                   <Upload className="h-4 w-4 mr-2" /> Upload Image
                 </Button>
@@ -297,14 +297,14 @@ export default function TransactionsPage() {
               <button
                 type="button"
                 onClick={() => setFormData((prev) => ({ ...prev, type: "debit", category: EXPENSE_CATEGORIES[0] }))}
-                className={`py-2 text-sm font-bold rounded-lg transition-all ${formData.type === "debit" ? "bg-card text-rose-600 shadow-sm" : "text-muted-foreground"}`}
+                className={`py-2 text-sm font-bold rounded-lg transition-all ${formData.type === "debit" ? "bg-card text-rose-600 dark:text-rose-400 shadow-sm" : "text-muted-foreground"}`}
               >
                 Expense (-)
               </button>
               <button
                 type="button"
                 onClick={() => setFormData((prev) => ({ ...prev, type: "credit", category: INCOME_CATEGORIES[0] }))}
-                className={`py-2 text-sm font-bold rounded-lg transition-all ${formData.type === "credit" ? "bg-card text-emerald-600 shadow-sm" : "text-muted-foreground"}`}
+                className={`py-2 text-sm font-bold rounded-lg transition-all ${formData.type === "credit" ? "bg-card text-emerald-600 dark:text-emerald-400 shadow-sm" : "text-muted-foreground"}`}
               >
                 Income (+)
               </button>
@@ -338,8 +338,8 @@ export default function TransactionsPage() {
           <DialogHeader><DialogTitle className="text-xl font-bold">Edit Transaction</DialogTitle></DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl">
-              <button type="button" onClick={() => setEditFormData((prev) => ({ ...prev, type: "debit", category: EXPENSE_CATEGORIES[0] }))} className={`py-2 text-sm font-bold rounded-lg transition-all ${editFormData.type === "debit" ? "bg-card text-rose-600 shadow-sm" : "text-muted-foreground"}`}>Expense (-)</button>
-              <button type="button" onClick={() => setEditFormData((prev) => ({ ...prev, type: "credit", category: INCOME_CATEGORIES[0] }))} className={`py-2 text-sm font-bold rounded-lg transition-all ${editFormData.type === "credit" ? "bg-card text-emerald-600 shadow-sm" : "text-muted-foreground"}`}>Income (+)</button>
+              <button type="button" onClick={() => setEditFormData((prev) => ({ ...prev, type: "debit", category: EXPENSE_CATEGORIES[0] }))} className={`py-2 text-sm font-bold rounded-lg transition-all ${editFormData.type === "debit" ? "bg-card text-rose-600 dark:text-rose-400 shadow-sm" : "text-muted-foreground"}`}>Expense (-)</button>
+              <button type="button" onClick={() => setEditFormData((prev) => ({ ...prev, type: "credit", category: INCOME_CATEGORIES[0] }))} className={`py-2 text-sm font-bold rounded-lg transition-all ${editFormData.type === "credit" ? "bg-card text-emerald-600 dark:text-emerald-400 shadow-sm" : "text-muted-foreground"}`}>Income (+)</button>
             </div>
             <div className="space-y-2"><Label>{editFormData.type === "credit" ? "Payer / Source" : "Merchant"}</Label><Input required className="rounded-xl" value={editFormData.merchant} onChange={(e) => setEditFormData({ ...editFormData, merchant: e.target.value })} /></div>
             <div className="grid grid-cols-2 gap-4">
@@ -361,7 +361,7 @@ export default function TransactionsPage() {
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <DialogContent className="sm:max-w-sm rounded-2xl">
           <DialogHeader><DialogTitle className="text-xl font-bold">Delete Transaction?</DialogTitle></DialogHeader>
-          <div className="p-4 bg-red-50 rounded-xl border border-red-100 my-2">
+          <div className="p-4 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-100 dark:border-red-900/50 my-2">
             <p className="text-sm text-red-800">Are you sure you want to delete this transaction for <span className="font-bold">₹{Number(selectedTx?.amount || 0).toFixed(2)}</span> at <span className="font-bold">{selectedTx?.merchant}</span>? This action cannot be undone.</p>
           </div>
           <div className="flex justify-end gap-3 mt-2">

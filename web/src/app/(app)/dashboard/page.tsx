@@ -380,35 +380,35 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm border-emerald-100 bg-emerald-50/30 hover:shadow-md transition-shadow">
+          <Card className="shadow-sm border-emerald-100 dark:border-emerald-900/50 bg-emerald-50/30 dark:bg-emerald-950/30 hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-semibold text-emerald-700 uppercase tracking-wider">Total Income</span>
-                <div className="p-2 bg-emerald-100 rounded-lg">
-                  <ArrowDownLeft className="h-5 w-5 text-emerald-600" />
+                <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Total Income</span>
+                <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg">
+                  <ArrowDownLeft className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
               </div>
               <div className="text-3xl font-extrabold text-emerald-900">
                 ₹{monthIncome.toFixed(2)}
               </div>
-              <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 flex items-center gap-1">
                 <TrendingUp className="h-3.5 w-3.5" /> + Income this month
               </p>
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm border-rose-100 bg-rose-50/30 hover:shadow-md transition-shadow">
+          <Card className="shadow-sm border-rose-100 dark:border-rose-900/50 bg-rose-50/30 dark:bg-rose-950/30 hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-semibold text-rose-700 uppercase tracking-wider">Total Spend</span>
-                <div className="p-2 bg-rose-100 rounded-lg">
-                  <ArrowUpRight className="h-5 w-5 text-rose-600" />
+                <span className="text-sm font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wider">Total Spend</span>
+                <div className="p-2 bg-rose-100 dark:bg-rose-900/50 rounded-lg">
+                  <ArrowUpRight className="h-5 w-5 text-rose-600 dark:text-rose-400" />
                 </div>
               </div>
               <div className="text-3xl font-extrabold text-rose-900">
                 ₹{monthExpense.toFixed(2)}
               </div>
-              <p className="text-xs text-rose-600 mt-2 flex items-center gap-1">
+              <p className="text-xs text-rose-600 dark:text-rose-400 mt-2 flex items-center gap-1">
                 <AlertCircle className="h-3.5 w-3.5" /> - Expenses this month
               </p>
             </CardContent>
@@ -590,7 +590,7 @@ export default function DashboardPage() {
                           <div className="flex items-center gap-4">
                             <div
                               className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
-                                isCredit ? "bg-emerald-100 text-emerald-600" : "bg-muted text-muted-foreground"
+                                isCredit ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400" : "bg-muted text-muted-foreground"
                               }`}
                             >
                               {isCredit ? <ArrowDownLeft className="h-6 w-6" /> : <IconComponent className="h-6 w-6" />}
@@ -600,7 +600,7 @@ export default function DashboardPage() {
                                 {tx.merchant}
                               </p>
                               <p className="text-sm text-muted-foreground flex items-center gap-2">
-                                <span className={`w-2 h-2 rounded-full ${isCredit ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
+                                <span className={`w-2 h-2 rounded-full ${isCredit ? 'bg-emerald-50 dark:bg-emerald-950' : 'bg-slate-400'}`}></span>
                                 {isCredit ? "Income" : tx.category} • {tx.date}
                               </p>
                             </div>
@@ -609,7 +609,7 @@ export default function DashboardPage() {
                           <div className="flex items-center gap-4">
                             <span
                               className={`font-extrabold text-base ${
-                                isCredit ? "text-emerald-600" : "text-foreground"
+                                isCredit ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"
                               }`}
                             >
                               {isCredit ? "+" : "-"}₹{Number(tx.amount).toFixed(2)}
@@ -666,9 +666,9 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={idx}
-                    className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50/50 p-4 shadow-sm relative overflow-hidden"
+                    className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 dark:bg-amber-950/50 p-4 shadow-sm relative overflow-hidden"
                   >
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-amber-500/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-amber-50 dark:bg-amber-950/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
                     
                     <div className="flex justify-between items-start">
                       <div className="overflow-hidden pr-2">
@@ -677,7 +677,7 @@ export default function DashboardPage() {
                         </p>
                         <p
                           className={`text-xs mt-1 font-medium flex items-center gap-1 ${
-                            days <= 1 ? "text-red-600" : "text-amber-700"
+                            days <= 1 ? "text-red-600" : "text-amber-700 dark:text-amber-400"
                           }`}
                         >
                           <Calendar className="h-3.5 w-3.5" />
@@ -732,7 +732,7 @@ export default function DashboardPage() {
                 }
                 className={`py-2 text-sm font-bold rounded-lg transition-all ${
                   editFormData.type === "debit"
-                    ? "bg-card text-rose-600 shadow-sm"
+                    ? "bg-card text-rose-600 dark:text-rose-400 shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -749,7 +749,7 @@ export default function DashboardPage() {
                 }
                 className={`py-2 text-sm font-bold rounded-lg transition-all ${
                   editFormData.type === "credit"
-                    ? "bg-card text-emerald-600 shadow-sm"
+                    ? "bg-card text-emerald-600 dark:text-emerald-400 shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -844,7 +844,7 @@ export default function DashboardPage() {
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Delete Transaction?</DialogTitle>
           </DialogHeader>
-          <div className="p-4 bg-red-50 rounded-xl border border-red-100 my-2">
+          <div className="p-4 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-100 dark:border-red-900/50 my-2">
             <p className="text-sm text-red-800">
               Are you sure you want to delete this transaction for{" "}
               <span className="font-bold">
