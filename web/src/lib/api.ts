@@ -181,12 +181,12 @@ export const clearChatHistory = async () => {
 };
 
 // Exports
-export const downloadExportCsv = async () => {
-  const response = await api.get('/export/csv', { responseType: 'blob' });
+export const downloadExportExcel = async () => {
+  const response = await api.get('/export/excel', { responseType: 'blob' });
   const url = window.URL.createObjectURL(new Blob([response.data]));
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', 'transactions.csv');
+  link.setAttribute('download', 'finance_export.xlsx');
   document.body.appendChild(link);
   link.click();
   link.parentNode?.removeChild(link);

@@ -376,14 +376,14 @@ def delete_goal_endpoint(
 
 # ---------------- EXPORT ---------------- #
 
-@app.get("/export/csv")
-def export_csv(
+@app.get("/export/excel")
+def export_excel(
     current_user: User = Depends(get_user_from_header_or_query),
     db: Session = Depends(get_db)
 ):
     df = db_services.get_transactions_df(db, current_user.id)
     
-    # Sanitize dataframe to prevent CSV Injection in Excel/Google Sheets
+    # Sanitize dataframe to prevent CSV/Excel Formula Injection
     def sanitize_val(val):
         if isinstance(val, str) and val and val[0] in ('=', '+', '-', '@', '\t', '\r'):
             return "'" + val
@@ -392,13 +392,29 @@ def export_csv(
     for col in df.select_dtypes(include=['object']).columns:
         df[col] = df[col].apply(sanitize_val)
         
-    output = io.StringIO()
-    df.to_csv(output, index=False)
-    csv_bytes = output.getvalue().encode("utf-8")
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        # Sheet 1: Dashboard
+        summary_data = get_summary(df)
+        summary_df = pd.DataFrame({
+            "Metric": ["Total Spend", "Total Income", "Net Balance"],
+            "Amount": [summary_data.get("total_spend", 0), summary_data.get("total_income", 0), summary_data.get("balance", 0)]
+        })
+        summary_df.to_excel(writer, sheet_name="Dashboard", index=False)
+        
+        # Sheet 2: Transactions
+        df.to_excel(writer, sheet_name="Transactions", index=False)
+        
+        workbook = writer.book
+        ws_tx = writer.sheets["Transactions"]
+        ws_tx.freeze_panes = "A2"
+        ws_tx.auto_filter.ref = ws_tx.dimensions
+
+    excel_bytes = output.getvalue()
     return Response(
-        content=csv_bytes,
-        media_type="text/csv",
-        headers={"Content-Disposition": 'attachment; filename="transactions.csv"'}
+        content=excel_bytes,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": 'attachment; filename="finance_export.xlsx"'}
     )
 
 @app.get("/export/pdf")

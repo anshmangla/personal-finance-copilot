@@ -32,8 +32,8 @@ class ExportService {
     }
   }
 
-  static Future<void> exportCsv() async {
-    await _downloadAndOpen('/export/csv', 'finance_export.csv');
+  static Future<void> exportExcel() async {
+    await _downloadAndOpen('/export/excel', 'finance_export.xlsx');
   }
 
   static Future<void> exportPdf() async {

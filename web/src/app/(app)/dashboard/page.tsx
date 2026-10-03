@@ -6,7 +6,7 @@ import {
   paySubscription,
   editTransaction,
   deleteTransaction,
-  downloadExportCsv,
+  downloadExportExcel,
   downloadExportPdf,
 } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -308,11 +308,11 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => downloadExportCsv()}
+            onClick={() => downloadExportExcel()}
             className="gap-1.5 text-xs font-semibold"
           >
             <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-            <span>CSV</span>
+            <span>Excel</span>
           </Button>
 
           <Button

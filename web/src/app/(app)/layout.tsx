@@ -30,7 +30,7 @@ import {
   FileSpreadsheet,
   FileText,
 } from "lucide-react"
-import { downloadExportCsv, downloadExportPdf, getMe } from "@/lib/api"
+import { downloadExportExcel, downloadExportPdf, getMe } from "@/lib/api"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -207,10 +207,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 variant="outline"
                 size="sm"
                 className="gap-2 text-xs font-semibold"
-                onClick={() => downloadExportCsv()}
+                onClick={() => downloadExportExcel()}
               >
                 <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-                <span className="hidden sm:inline">Export CSV</span>
+                <span className="hidden sm:inline">Export Excel</span>
               </Button>
 
               <Button

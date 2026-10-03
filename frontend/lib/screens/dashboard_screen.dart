@@ -498,8 +498,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onSelected: (value) async {
               final messenger = ScaffoldMessenger.of(context);
               try {
-                if (value == 'csv') {
-                  await ExportService.exportCsv();
+                if (value == 'excel') {
+                  await ExportService.exportExcel();
                 } else if (value == 'pdf') {
                   await ExportService.exportPdf();
                 }
@@ -508,7 +508,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(value: 'csv', child: Text('Export as CSV')),
+              const PopupMenuItem(value: 'excel', child: Text('Export as Excel')),
               const PopupMenuItem(value: 'pdf', child: Text('Export as PDF')),
             ],
           ),

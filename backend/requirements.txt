@@ -15,4 +15,4 @@ pyjwt
 requests
 python-multipart
 cryptography
-slowapi
+slowapiopenpyxl
