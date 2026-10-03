@@ -406,6 +406,78 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  void _showExportDialog(List<String> availableMonths) {
+    String selectedExportMonth = 'all';
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: const Text('Export Report'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Select Time Period', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  DropdownButton<String>(
+                    isExpanded: true,
+                    value: selectedExportMonth,
+                    items: [
+                      const DropdownMenuItem(value: 'all', child: Text('All Time History')),
+                      ...availableMonths.map((m) => DropdownMenuItem(value: m, child: Text(m))),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) setStateDialog(() => selectedExportMonth = val);
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.table_chart, size: 18),
+                  label: const Text('Excel'),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    final messenger = ScaffoldMessenger.of(context);
+                    try {
+                      final month = selectedExportMonth == 'all' ? null : selectedExportMonth;
+                      await ExportService.exportExcel(month: month);
+                    } catch (e) {
+                      messenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
+                    }
+                  },
+                ),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.picture_as_pdf, size: 18),
+                  label: const Text('PDF'),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    final messenger = ScaffoldMessenger.of(context);
+                    try {
+                      final month = selectedExportMonth == 'all' ? null : selectedExportMonth;
+                      await ExportService.exportPdf(month: month);
+                    } catch (e) {
+                      messenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
+                    }
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -483,25 +555,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: const Text('Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
         elevation: 0,
         actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.file_download),
-            onSelected: (value) async {
-              final messenger = ScaffoldMessenger.of(context);
-              try {
-                final month = _filterBySelectedMonth ? _selectedMonth : null;
-                if (value == 'excel') {
-                  await ExportService.exportExcel(month: month);
-                } else if (value == 'pdf') {
-                  await ExportService.exportPdf(month: month);
-                }
-              } catch (e) {
-                if (mounted) messenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 'excel', child: Text('Export as Excel')),
-              const PopupMenuItem(value: 'pdf', child: Text('Export as PDF')),
-            ],
+          IconButton(
+            icon: const Icon(Icons.download),
+            tooltip: 'Export Report',
+            onPressed: () => _showExportDialog(availableMonths),
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
