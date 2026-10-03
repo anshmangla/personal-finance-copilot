@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { CheckCircle2, Flag, PieChart, Plus, RefreshCw, Trash2, Target, AlertTriangle } from "lucide-react"
-import { motion } from "framer-motion"
+import { motion } from "framer-motion"\nimport Confetti from "react-confetti"\nimport { useWindowSize } from "react-use"
 
 const BUDGET_CATEGORIES = [
   "Food",
@@ -67,7 +67,7 @@ export default function BudgetsPage() {
 
   const [selectedCategory, setSelectedCategory] = useState(BUDGET_CATEGORIES[0])
   const [budgetLimit, setBudgetLimit] = useState("")
-  const [newGoalText, setNewGoalText] = useState("")
+  const [newGoalText, setNewGoalText] = useState("")\n  const [showConfetti, setShowConfetti] = useState(false)\n  const { width, height } = useWindowSize()
 
   const currentMonthStr = new Date().toISOString().substring(0, 7)
 
@@ -150,7 +150,7 @@ export default function BudgetsPage() {
   const budgetKeys = Object.keys(budgets)
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 pb-10">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 pb-10">\n      {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={400} />}
       
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">

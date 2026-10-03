@@ -1,3 +1,8 @@
+import os
+
+file_path = "web/src/app/(app)/layout.tsx"
+
+code = """\
 "use client"
 
 import { useEffect, useState } from "react"
@@ -261,3 +266,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   )
 }
+"""
+
+with open(file_path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Layout rewrite complete.")
