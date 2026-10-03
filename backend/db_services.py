@@ -8,28 +8,39 @@ from models import Transaction, Subscription, Budget, Goal, Habit, ChatMessage
 
 # ---------------- TRANSACTIONS ---------------- #
 
-def get_transactions_df(db: Session, user_id: str, month: Optional[str] = None) -> pd.DataFrame:
-    """Returns all transactions for a user as a Pandas DataFrame, optionally filtered by YYYY-MM."""
+def get_transactions(db: Session, user_id: str, month: Optional[str] = None) -> list:
+    """Returns all transactions for a user as a list of dicts, optionally filtered by YYYY-MM."""
     query = db.query(Transaction).filter(Transaction.user_id == user_id)
     if month:
         query = query.filter(Transaction.date.startswith(month))
     
     txs = query.all()
-    if not txs:
-        return pd.DataFrame(columns=["id", "date", "amount", "merchant", "category", "type"])
-    
-    data = [
+    return [
         {
             "id": t.id,
-            "date": t.date,
-            "amount": float(t.amount),
-            "merchant": t.merchant,
-            "category": t.category,
-            "type": t.type,
+            "date": t.date or "",
+            "amount": float(t.amount) if t.amount else 0.0,
+            "merchant": (t.merchant or "").replace("\n", " ").strip(),
+            "category": t.category or "",
+            "type": t.type or "debit",
         }
         for t in txs
     ]
+
+def get_transactions_df(db: Session, user_id: str, month: Optional[str] = None) -> pd.DataFrame:
+    """Returns all transactions for a user as a Pandas DataFrame, optionally filtered by YYYY-MM."""
+    data = get_transactions(db, user_id, month)
+    if not data:
+        return pd.DataFrame(columns=["id", "date", "amount", "merchant", "category", "type"])
     return pd.DataFrame(data)
+
+def get_available_months(db: Session, user_id: str) -> list:
+    """Returns a list of distinct YYYY-MM strings for the user's transactions without decrypting data."""
+    # Since date is stored in plain text (e.g., '2026-10-01'), we can extract months directly.
+    # We query all dates for the user and process distinct prefixes in python (since SQLite/Postgres have different SUBSTR functions).
+    dates = db.query(Transaction.date).filter(Transaction.user_id == user_id).all()
+    months = {d[0][:7] for d in dates if d[0] and len(d[0]) >= 7}
+    return sorted(list(months), reverse=True)
 
 def add_transaction(
     db: Session,

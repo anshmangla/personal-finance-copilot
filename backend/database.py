@@ -17,16 +17,16 @@ elif raw_db_url.startswith("postgresql://") and not raw_db_url.startswith("postg
 
 DATABASE_URL = raw_db_url
 
-# Configure engine connection parameters
-connect_args = {}
+engine_kwargs = {
+    "pool_pre_ping": True, # checks liveness before giving connection (crucial for Neon serverless)
+}
 if DATABASE_URL.startswith("sqlite"):
-    connect_args = {"check_same_thread": False}
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    engine_kwargs["pool_size"] = 10
+    engine_kwargs["max_overflow"] = 20
 
-engine = create_engine(
-    DATABASE_URL,
-    connect_args=connect_args,
-    pool_pre_ping=True,  # checks liveness before giving connection (crucial for Neon serverless)
-)
+engine = create_engine(DATABASE_URL, **engine_kwargs)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

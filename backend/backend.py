@@ -21,7 +21,7 @@ from models import User
 from auth import verify_google_token, create_access_token, get_current_user, get_user_from_header_or_query
 import db_services
 from agent import ask_agent, clear_agent_memory
-from utils import get_summary
+from utils import get_summary, get_fast_summary
 import ocr_service
 
 app = FastAPI(title="Finance Copilot API")
@@ -312,20 +312,23 @@ def pay_subscription_endpoint(
 
 @app.get("/summary")
 def summary(
+    month: Optional[str] = None,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    df = db_services.get_transactions_df(db, current_user.id)
+    txs = db_services.get_transactions(db, current_user.id, month=month)
+    available_months = db_services.get_available_months(db, current_user.id)
     upcoming_reminders = db_services.get_upcoming_reminders(db, current_user.id)
     budgets = db_services.get_budgets(db, current_user.id)
     goals = [g["goal_text"] for g in db_services.get_goals(db, current_user.id)]
 
-    data = get_summary(
-        df,
+    data = get_fast_summary(
+        txs,
         upcoming_reminders=upcoming_reminders,
         budgets=budgets,
         goals=goals
     )
+    data["available_months"] = available_months
     return {"status": "success", "data": data}
 
 @app.get("/budgets")

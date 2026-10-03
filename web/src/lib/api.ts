@@ -56,8 +56,9 @@ export const getMe = async () => {
 };
 
 // Summary & Dashboard
-export const getSummary = async () => {
-  const response = await api.get('/summary');
+export const getSummary = async (month?: string) => {
+  const params = month ? { month } : {};
+  const response = await api.get('/summary', { params });
   return response.data;
 };
 

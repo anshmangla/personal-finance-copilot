@@ -28,6 +28,41 @@ def get_top_category(df: pd.DataFrame) -> str:
         return "None"
     return debits.groupby("category")["amount"].sum().idxmax()
 
+def get_fast_summary(
+    transactions: list,
+    upcoming_reminders: list = None,
+    budgets: dict = None,
+    goals: list = None
+) -> dict:
+    total_spend = 0.0
+    total_income = 0.0
+    category_breakdown = {}
+
+    for tx in transactions:
+        amt = tx.get("amount", 0.0)
+        cat = tx.get("category", "")
+        tx_type = str(tx.get("type", "debit")).lower()
+        
+        if tx_type == "credit":
+            total_income += amt
+        else:
+            total_spend += amt
+            category_breakdown[cat] = category_breakdown.get(cat, 0.0) + amt
+
+    # Sort transactions by date descending
+    sorted_txs = sorted(transactions, key=lambda x: x.get("date", ""), reverse=True)
+
+    return {
+        "total_spend": total_spend,
+        "total_income": total_income,
+        "balance": total_income - total_spend,
+        "category_breakdown": category_breakdown,
+        "transactions": sorted_txs,
+        "upcoming_reminders": upcoming_reminders or [],
+        "budgets": budgets or {},
+        "goals": goals or []
+    }
+
 def get_summary(
     df: pd.DataFrame,
     upcoming_reminders: list = None,

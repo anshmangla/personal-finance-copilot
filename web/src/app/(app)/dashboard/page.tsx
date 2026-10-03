@@ -128,20 +128,12 @@ export default function DashboardPage() {
   const fetchSummary = async () => {
     try {
       setLoading(true)
-      const res = await getSummary()
+      const targetMonth = filterByMonth ? selectedMonth || undefined : undefined;
+      const res = await getSummary(targetMonth)
       const d = res.data || {}
       setData(d)
 
-      // Extract unique months from transactions
-      const txs = d.transactions || []
-      const monthsSet = new Set<string>()
-      for (const t of txs) {
-        const dateStr = (t.date || "").toString()
-        if (dateStr.length >= 7) {
-          monthsSet.add(dateStr.substring(0, 7))
-        }
-      }
-      const sortedMonths = Array.from(monthsSet).sort((a, b) => b.localeCompare(a))
+      const sortedMonths = d.available_months || []
 
       if (!selectedMonth || !sortedMonths.includes(selectedMonth)) {
         setSelectedMonth(sortedMonths.length > 0 ? sortedMonths[0] : null)
@@ -155,7 +147,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchSummary()
-  }, [])
+  }, [filterByMonth, selectedMonth])
 
   const handlePayBill = async (subId: string, name: string) => {
     try {
@@ -223,15 +215,8 @@ export default function DashboardPage() {
 
   const allTransactions = data?.transactions || []
 
-  // Extract unique available months
-  const monthsSet = new Set<string>()
-  for (const t of allTransactions) {
-    const dateStr = (t.date || "").toString()
-    if (dateStr.length >= 7) {
-      monthsSet.add(dateStr.substring(0, 7))
-    }
-  }
-  const availableMonths = Array.from(monthsSet).sort((a, b) => b.localeCompare(a))
+  // Extract unique available months from API response
+  const availableMonths: string[] = data?.available_months || []
 
   // Calculate Month-Specific stats
   let monthIncome = 0

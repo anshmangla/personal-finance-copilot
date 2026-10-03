@@ -37,16 +37,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> fetchSummary() async {
     try {
-      final response = await ApiClient.get('/summary');
+      final endpoint = _filterBySelectedMonth && _selectedMonth != null
+          ? '/summary?month=$_selectedMonth'
+          : '/summary';
+      final response = await ApiClient.get(endpoint);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'] as Map<String, dynamic>;
-        final txs = (data['transactions'] as List<dynamic>?) ?? [];
-        final months = _extractMonths(txs);
+        final months = List<String>.from(data['available_months'] ?? []);
 
         setState(() {
           summaryData = data;
           isLoading = false;
-          if (_selectedMonth == null || !months.contains(_selectedMonth)) {
+          if (_selectedMonth == null || (months.isNotEmpty && !months.contains(_selectedMonth))) {
             _selectedMonth = months.isNotEmpty ? months.first : null;
           }
         });
@@ -64,18 +66,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  List<String> _extractMonths(List<dynamic> txs) {
-    final Set<String> months = {};
-    for (final raw in txs) {
-      final tx = raw as Map<String, dynamic>;
-      final date = (tx['date'] ?? '').toString();
-      if (date.length >= 7) {
-        months.add(date.substring(0, 7));
-      }
-    }
-    final sorted = months.toList()..sort((a, b) => b.compareTo(a));
-    return sorted;
-  }
 
   Future<void> _deleteTransaction(String txId) async {
     try {
