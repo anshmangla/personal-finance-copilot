@@ -29,7 +29,8 @@ import {
   Wallet,
 } from "lucide-react"
 import { getMe } from "@/lib/api"
-import { ExportModal } from "@/components/ExportModal"
+import { ExportModal } from '@/components/ExportModal'
+import { ModeToggle } from '@/components/theme-toggle'
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -226,6 +227,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
             {/* Export Actions */}
             <div className="flex items-center gap-3">
+              <ModeToggle />
               <Button
                 variant="outline"
                 size="sm"
