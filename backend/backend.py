@@ -338,6 +338,13 @@ def budgets(
 ):
     return {"status": "success", "data": db_services.get_budgets(db, current_user.id)}
 
+@app.get("/months")
+def get_months(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return {"status": "success", "data": db_services.get_available_months(db, current_user.id)}
+
 @app.post("/set_budget")
 def set_budget_endpoint(
     req: BudgetReq,

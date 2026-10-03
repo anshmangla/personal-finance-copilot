@@ -31,10 +31,12 @@ import {
   FileText,
 } from "lucide-react"
 import { downloadExportExcel, downloadExportPdf, getMe } from "@/lib/api"
+import { ExportModal } from "@/components/ExportModal"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
+  const [exportModalOpen, setExportModalOpen] = useState(false)
   const [user, setUser] = useState<{
     id?: string
     name?: string
@@ -207,20 +209,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 variant="outline"
                 size="sm"
                 className="gap-2 text-xs font-semibold"
-                onClick={() => downloadExportExcel()}
+                onClick={() => setExportModalOpen(true)}
               >
-                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-                <span className="hidden sm:inline">Export Excel</span>
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2 text-xs font-semibold"
-                onClick={() => downloadExportPdf()}
-              >
-                <FileText className="h-3.5 w-3.5 text-red-600" />
-                <span className="hidden sm:inline">Export PDF</span>
+                <Download className="h-3.5 w-3.5 text-blue-600" />
+                <span className="hidden sm:inline">Export Report</span>
               </Button>
             </div>
           </header>
@@ -231,6 +223,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </main>
         </div>
       </div>
+      
+      <ExportModal open={exportModalOpen} onOpenChange={setExportModalOpen} />
     </SidebarProvider>
   )
 }

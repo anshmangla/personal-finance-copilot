@@ -62,6 +62,11 @@ export const getSummary = async (month?: string) => {
   return response.data;
 };
 
+export const getMonths = async () => {
+  const response = await api.get('/months');
+  return response.data;
+};
+
 // Transactions
 export const addTransaction = async (data: {
   amount: number;

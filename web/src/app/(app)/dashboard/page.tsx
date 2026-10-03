@@ -6,8 +6,8 @@ import {
   paySubscription,
   editTransaction,
   deleteTransaction,
-  downloadExportExcel,
-  downloadExportPdf,
+  
+  
 } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -290,25 +290,6 @@ export default function DashboardPage() {
             <span>Refresh</span>
           </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => downloadExportExcel(filterByMonth && selectedMonth ? selectedMonth : undefined)}
-            className="gap-1.5 text-xs font-semibold"
-          >
-            <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-            <span>Excel</span>
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => downloadExportPdf(filterByMonth && selectedMonth ? selectedMonth : undefined)}
-            className="gap-1.5 text-xs font-semibold"
-          >
-            <FileText className="h-3.5 w-3.5 text-red-600" />
-            <span>PDF</span>
-          </Button>
         </div>
       </div>
 
