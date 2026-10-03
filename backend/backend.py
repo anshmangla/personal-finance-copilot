@@ -5,6 +5,7 @@ import tempfile
 from typing import Optional
 from datetime import datetime
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
