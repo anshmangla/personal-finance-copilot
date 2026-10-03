@@ -15,5 +15,6 @@ pyjwt
 requests
 python-multipart
 cryptography
-slowapiopenpyxl
+slowapi
+openpyxl
 matplotlib
