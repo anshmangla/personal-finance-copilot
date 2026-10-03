@@ -1,8 +1,10 @@
 import os
 import io
 import csv
+import tempfile
 from typing import Optional
 from datetime import datetime
+import matplotlib.pyplot as plt
 
 from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -427,22 +429,84 @@ def export_pdf(
 
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("helvetica", "B", 16)
-    pdf.cell(0, 10, f"Personal Finance Summary - {current_user.name or current_user.email}", align="C", new_x="LMARGIN", new_y="NEXT")
+    
+    # Header
+    pdf.set_font("helvetica", "B", 18)
+    pdf.set_text_color(0, 51, 102)
+    pdf.cell(0, 10, f"Financial Statement: {current_user.name or current_user.email}", align="C", new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.set_font("helvetica", "", 10)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(0, 8, f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M')}", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(5)
 
+    # Metrics Grid
+    pdf.set_font("helvetica", "B", 12)
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_fill_color(0, 102, 204)
+    
+    pdf.cell(63, 10, "Total Income", border=1, align="C", fill=True)
+    pdf.cell(63, 10, "Total Spend", border=1, align="C", fill=True)
+    pdf.cell(63, 10, "Net Balance", border=1, align="C", fill=True, new_x="LMARGIN", new_y="NEXT")
+    
     pdf.set_font("helvetica", "", 12)
-    pdf.cell(0, 10, f"Generated on: {datetime.now().strftime('%Y-%m-%d')}", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 10, f"Total Spend: Rs. {summary_data['total_spend']:.2f}", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 10, f"Total Income: Rs. {summary_data['total_income']:.2f}", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 10, f"Net Balance: Rs. {summary_data['balance']:.2f}", new_x="LMARGIN", new_y="NEXT")
-
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_fill_color(245, 245, 245)
+    
+    pdf.cell(63, 10, f"Rs. {summary_data.get('total_income', 0):,.2f}", border=1, align="C", fill=True)
+    pdf.cell(63, 10, f"Rs. {summary_data.get('total_spend', 0):,.2f}", border=1, align="C", fill=True)
+    pdf.cell(63, 10, f"Rs. {summary_data.get('balance', 0):,.2f}", border=1, align="C", fill=True, new_x="LMARGIN", new_y="NEXT")
     pdf.ln(10)
-    pdf.set_font("helvetica", "B", 14)
-    pdf.cell(0, 10, "Category Breakdown", new_x="LMARGIN", new_y="NEXT")
-    pdf.set_font("helvetica", "", 12)
-    for cat, amount in summary_data["category_breakdown"].items():
-        pdf.cell(0, 8, f"{cat}: Rs. {amount:.2f}", new_x="LMARGIN", new_y="NEXT")
 
+    # Chart Generation
+    if summary_data.get("category_breakdown"):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            labels = list(summary_data["category_breakdown"].keys())
+            sizes = list(summary_data["category_breakdown"].values())
+            
+            fig, ax = plt.subplots(figsize=(5, 3))
+            ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
+            ax.axis('equal')
+            
+            chart_path = os.path.join(tmpdir, "chart.png")
+            plt.savefig(chart_path, bbox_inches='tight')
+            plt.close(fig)
+            
+            pdf.image(chart_path, w=120, x=45)
+            pdf.ln(5)
+
+    # Transactions Table
+    pdf.set_font("helvetica", "B", 14)
+    pdf.set_text_color(0, 51, 102)
+    pdf.cell(0, 10, "Recent Transactions", new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.set_font("helvetica", "B", 10)
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_fill_color(0, 51, 102)
+    
+    pdf.cell(30, 8, "Date", border=1, fill=True)
+    pdf.cell(70, 8, "Merchant", border=1, fill=True)
+    pdf.cell(40, 8, "Category", border=1, fill=True)
+    pdf.cell(50, 8, "Amount", border=1, align="R", fill=True, new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.set_font("helvetica", "", 10)
+    pdf.set_text_color(0, 0, 0)
+    
+    txs = summary_data.get("transactions", [])
+    for i, tx in enumerate(txs[:100]): # Max 100 in PDF
+        fill = (i % 2 == 0)
+        if fill:
+            pdf.set_fill_color(245, 245, 245)
+        else:
+            pdf.set_fill_color(255, 255, 255)
+            
+        pdf.cell(30, 8, str(tx.get("date", "")), border=1, fill=fill)
+        pdf.cell(70, 8, str(tx.get("merchant", ""))[:30], border=1, fill=fill)
+        pdf.cell(40, 8, str(tx.get("category", ""))[:20], border=1, fill=fill)
+        amount = tx.get("amount", 0)
+        prefix = "+" if str(tx.get("type", "")).lower() == "credit" else "-"
+        pdf.cell(50, 8, f"{prefix} Rs. {amount:,.2f}", border=1, align="R", fill=fill, new_x="LMARGIN", new_y="NEXT")
+        
     pdf_bytes = pdf.output()
     return Response(
         content=bytes(pdf_bytes),
