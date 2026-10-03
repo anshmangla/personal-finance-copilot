@@ -1,3 +1,8 @@
+import os
+
+file_path = "web/src/app/(app)/dashboard/page.tsx"
+
+code = """\
 "use client"
 
 import { useEffect, useState } from "react"
@@ -874,3 +879,9 @@ export default function DashboardPage() {
     </motion.div>
   )
 }
+"""
+
+with open(file_path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Dashboard rewrite complete.")
