@@ -190,7 +190,7 @@ export const clearChatHistory = async () => {
 export const downloadExportExcel = async (month?: string) => {
   const params = month ? { month } : {};
   const response = await api.get('/export/excel', { params, responseType: 'blob' });
-  const url = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] }));
+  const url = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] as string }));
   const link = document.createElement('a');
   link.href = url;
   link.setAttribute('download', month ? `finance_export_${month}.xlsx` : 'finance_export.xlsx');
@@ -203,7 +203,7 @@ export const downloadExportExcel = async (month?: string) => {
 export const downloadExportPdf = async (month?: string) => {
   const params = month ? { month } : {};
   const response = await api.get('/export/pdf', { params, responseType: 'blob' });
-  const url = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] }));
+  const url = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] as string }));
   const link = document.createElement('a');
   link.href = url;
   link.setAttribute('download', month ? `summary_report_${month}.pdf` : 'summary_report.pdf');
