@@ -39,6 +39,11 @@ An intelligent, multi-tenant agentic personal finance copilot designed to track 
     - **Expense Category** (categorized into `Food`, `Shopping`, `Bills`, `Health`, etc.)
   - Pre-fills the manual expense form instantly for 1-tap review and saving.
 
+- **🔒 Enterprise-Grade Security & Privacy**:
+  - **Application-Level Database Encryption**: Sensitive PII and financial records (amounts, merchants, categories, and chat messages) are encrypted using Fernet symmetric encryption *before* storage in PostgreSQL.
+  - **Hardened API Security**: Strict rate limiting via `slowapi`, bounded file upload chunks to prevent OOM attacks, and strictly validated Pydantic API payload schemas.
+  - **Secure Token Handling**: No credentials/JWT leaks in URL parameters or wildcard CORS vulnerabilities. Strict Google OAuth Confused-Deputy Audience verification.
+
 - **🤖 Autonomous ReAct AI Copilot**:
   - Built with **LangGraph** and **Groq** high-speed LLM inference.
   - Context-aware multi-turn financial assistant equipped with live database tools:
@@ -124,6 +129,7 @@ personal_finance_copilot/
 │   ├── agent.py              # Multi-tenant LangGraph ReAct agent & tools
 │   ├── auth.py               # Google OAuth verification & JWT helpers
 │   ├── backend.py            # FastAPI main app, router, & endpoints
+│   ├── crypto.py             # Application-level DB encryption utilities (Fernet)
 │   ├── database.py           # SQLAlchemy engine & Neon Postgres configuration
 │   ├── db_services.py        # Database CRUD services (Transactions, Subscriptions, Budgets, Goals, Chat)
 │   ├── models.py             # SQLAlchemy ORM models (User, Transaction, Subscription, Budget, Goal, ChatMessage)
@@ -166,14 +172,17 @@ DATABASE_URL=postgresql://<user>:<password>@<ep-pooler-id>.neon.tech/<dbname>?ss
 # Groq Cloud API Key
 GROQ_API_KEY=gsk_your_groq_api_key_here
 
-# JWT Secret Key for token signing
-JWT_SECRET_KEY=your_super_secret_jwt_key_here
+# JWT Secret Key for token signing (REQUIRED for production)
+JWT_SECRET=your_super_secret_jwt_key_here
 
-# Google OAuth Web Client ID (from Google Cloud Console)
-GOOGLE_WEB_CLIENT_ID=your_google_web_client_id.apps.googleusercontent.com
+# Google OAuth Web Client ID (REQUIRED for production OAuth audience check)
+GOOGLE_CLIENT_ID=your_google_web_client_id.apps.googleusercontent.com
+
+# Database Application-Level Encryption Key (32-byte Fernet key)
+ENCRYPTION_KEY=your_generated_fernet_key_here
 ```
 
-> **Note**: For mobile Google Sign-In, configure `GOOGLE_WEB_CLIENT_ID` in `frontend/lib/services/auth_service.dart` as the `serverClientId`, and register your Android Client ID with package name `com.example.finance_copilot_app` and debug SHA-1 in the Google Cloud Console.
+> **Note**: For mobile Google Sign-In, configure `GOOGLE_CLIENT_ID` in `frontend/lib/services/auth_service.dart` as the `serverClientId`, and register your Android Client ID with package name `com.example.finance_copilot_app` and debug SHA-1 in the Google Cloud Console.
 
 ---
 
