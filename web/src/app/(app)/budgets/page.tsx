@@ -52,7 +52,7 @@ const CircularProgress = ({ value, max, size = 100, strokeWidth = 10 }: { value:
         />
       </svg>
       <div className="flex flex-col items-center justify-center text-center absolute inset-0">
-        <span className={`text-sm font-bold ${isOver ? 'text-rose-600' : 'text-slate-700'}`}>{Math.round(percent * 100)}%</span>
+        <span className={`text-sm font-bold ${isOver ? 'text-rose-600' : 'text-foreground'}`}>{Math.round(percent * 100)}%</span>
       </div>
     </div>
   )
@@ -160,12 +160,12 @@ export default function BudgetsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Budgets & Goals</h1>
-          <p className="text-slate-500 mt-1">Set monthly caps and monitor long-term financial milestones.</p>
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Budgets & Goals</h1>
+          <p className="text-muted-foreground mt-1">Set monthly caps and monitor long-term financial milestones.</p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={fetchData} className="gap-2 font-semibold shadow-sm rounded-full bg-white hover:bg-slate-50">
+          <Button variant="outline" size="sm" onClick={fetchData} className="gap-2 font-semibold shadow-sm rounded-full bg-card hover:bg-muted">
             <RefreshCw className="h-4 w-4" />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
@@ -188,14 +188,14 @@ export default function BudgetsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           {/* Category Budgets */}
-          <Card className="shadow-sm border-slate-200/60 bg-white">
-            <CardHeader className="pb-4 border-b border-slate-100 bg-slate-50/50 flex flex-row items-center justify-between">
+          <Card className="shadow-sm border-border/60 bg-card">
+            <CardHeader className="pb-4 border-b border-border bg-muted/50 flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                   <PieChart className="h-5 w-5 text-blue-500" />
                   Monthly Budgets
                 </CardTitle>
-                <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">For {currentMonthStr}</p>
+                <p className="text-xs text-muted-foreground mt-1 uppercase tracking-wider">For {currentMonthStr}</p>
               </div>
             </CardHeader>
             <CardContent className="p-6">
@@ -204,8 +204,8 @@ export default function BudgetsPage() {
                   <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Target className="h-8 w-8 text-blue-300" />
                   </div>
-                  <p className="font-semibold text-slate-700 mb-1">No budgets set</p>
-                  <p className="text-sm text-slate-500 mb-4">Keep your spending in check by setting limits.</p>
+                  <p className="font-semibold text-foreground mb-1">No budgets set</p>
+                  <p className="text-sm text-muted-foreground mb-4">Keep your spending in check by setting limits.</p>
                   <Button variant="outline" onClick={() => setBudgetDialogOpen(true)}>Create your first budget</Button>
                 </div>
               ) : (
@@ -220,14 +220,14 @@ export default function BudgetsPage() {
                       <motion.div 
                         whileHover={{ y: -2 }}
                         key={category} 
-                        className={`flex flex-col items-center text-center p-4 rounded-2xl border ${isOver ? 'bg-rose-50 border-rose-100 shadow-sm' : isWarning ? 'bg-amber-50 border-amber-100 shadow-sm' : 'bg-slate-50 border-slate-100'}`}
+                        className={`flex flex-col items-center text-center p-4 rounded-2xl border ${isOver ? 'bg-rose-50 border-rose-100 shadow-sm' : isWarning ? 'bg-amber-50 border-amber-100 shadow-sm' : 'bg-muted border-border'}`}
                       >
-                        <h4 className="font-bold text-slate-800 mb-3">{category}</h4>
+                        <h4 className="font-bold text-foreground mb-3">{category}</h4>
                         <CircularProgress value={spent} max={limit} size={100} strokeWidth={8} />
                         <div className="mt-4 w-full">
                           <div className="flex justify-between text-xs font-medium mb-1">
-                            <span className="text-slate-500">Spent: <strong className={isOver ? 'text-rose-600' : 'text-slate-900'}>₹{spent.toFixed(2)}</strong></span>
-                            <span className="text-slate-500">Limit: <strong>₹{limit.toFixed(2)}</strong></span>
+                            <span className="text-muted-foreground">Spent: <strong className={isOver ? 'text-rose-600' : 'text-foreground'}>₹{spent.toFixed(2)}</strong></span>
+                            <span className="text-muted-foreground">Limit: <strong>₹{limit.toFixed(2)}</strong></span>
                           </div>
                           {isOver && (
                             <div className="flex items-center justify-center gap-1 text-[10px] uppercase font-bold text-rose-600 bg-rose-100 py-1 px-2 rounded-full mt-2">
@@ -244,9 +244,9 @@ export default function BudgetsPage() {
           </Card>
 
           {/* Goals */}
-          <Card className="shadow-sm border-slate-200/60 bg-white">
-            <CardHeader className="pb-4 border-b border-slate-100 bg-slate-50/50 flex flex-row items-center justify-between">
-              <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <Card className="shadow-sm border-border/60 bg-card">
+            <CardHeader className="pb-4 border-b border-border bg-muted/50 flex flex-row items-center justify-between">
+              <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                 <Flag className="h-5 w-5 text-indigo-500" />
                 Financial Goals
               </CardTitle>
@@ -257,8 +257,8 @@ export default function BudgetsPage() {
                   <div className="bg-indigo-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Flag className="h-8 w-8 text-indigo-300" />
                   </div>
-                  <p className="font-semibold text-slate-700 mb-1">No goals defined</p>
-                  <p className="text-sm text-slate-500 mb-4">Set long-term milestones to track your progress.</p>
+                  <p className="font-semibold text-foreground mb-1">No goals defined</p>
+                  <p className="text-sm text-muted-foreground mb-4">Set long-term milestones to track your progress.</p>
                   <Button variant="outline" onClick={() => setGoalDialogOpen(true)}>Add your first goal</Button>
                 </div>
               ) : (
@@ -267,19 +267,19 @@ export default function BudgetsPage() {
                     <motion.div 
                       whileHover={{ scale: 1.01 }}
                       key={idx} 
-                      className="group flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl hover:border-indigo-200 hover:shadow-md transition-all"
+                      className="group flex items-center justify-between p-4 bg-card border border-border rounded-2xl hover:border-indigo-200 hover:shadow-md transition-all"
                     >
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600">
                           <CheckCircle2 className="h-5 w-5" />
                         </div>
-                        <p className="font-semibold text-slate-800">{g}</p>
+                        <p className="font-semibold text-foreground">{g}</p>
                       </div>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDeleteGoal(idx)}
-                        className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-opacity rounded-full h-8 w-8"
+                        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-opacity rounded-full h-8 w-8"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -300,7 +300,7 @@ export default function BudgetsPage() {
           </DialogHeader>
           <form onSubmit={handleSetBudgetSubmit} className="space-y-5 mt-2">
             <div className="space-y-2">
-              <Label className="font-semibold text-slate-700">Category</Label>
+              <Label className="font-semibold text-foreground">Category</Label>
               <select
                 className="flex h-10 w-full rounded-xl border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-blue-500"
                 value={selectedCategory}
@@ -312,7 +312,7 @@ export default function BudgetsPage() {
               </select>
             </div>
             <div className="space-y-2">
-              <Label className="font-semibold text-slate-700">Monthly Limit (₹)</Label>
+              <Label className="font-semibold text-foreground">Monthly Limit (₹)</Label>
               <Input
                 required type="number" step="0.01" min="1" className="rounded-xl"
                 value={budgetLimit} onChange={(e) => setBudgetLimit(e.target.value)}
@@ -333,7 +333,7 @@ export default function BudgetsPage() {
           </DialogHeader>
           <form onSubmit={handleAddGoalSubmit} className="space-y-5 mt-2">
             <div className="space-y-2">
-              <Label className="font-semibold text-slate-700">Goal Description</Label>
+              <Label className="font-semibold text-foreground">Goal Description</Label>
               <Input
                 required className="rounded-xl"
                 value={newGoalText} onChange={(e) => setNewGoalText(e.target.value)}

@@ -224,7 +224,7 @@ export default function DashboardPage() {
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent shadow-lg" />
-          <p className="text-sm font-semibold text-slate-500 animate-pulse tracking-wide">Loading your dashboard...</p>
+          <p className="text-sm font-semibold text-muted-foreground animate-pulse tracking-wide">Loading your dashboard...</p>
         </div>
       </div>
     )
@@ -316,15 +316,15 @@ export default function DashboardPage() {
       {/* Header & AI Insights */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Overview</h1>
-          <p className="text-slate-500 mt-1">Here's what's happening with your money.</p>
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Overview</h1>
+          <p className="text-muted-foreground mt-1">Here's what's happening with your money.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={fetchSummary}
-            className="gap-2 font-semibold shadow-sm rounded-full bg-white hover:bg-slate-50"
+            className="gap-2 font-semibold shadow-sm rounded-full bg-card hover:bg-muted"
           >
             <RefreshCw className="h-4 w-4" />
             <span>Refresh</span>
@@ -333,7 +333,7 @@ export default function DashboardPage() {
             variant="outline"
             size="sm"
             onClick={() => setFilterByMonth(!filterByMonth)}
-            className="gap-2 font-semibold shadow-sm rounded-full bg-white hover:bg-slate-50"
+            className="gap-2 font-semibold shadow-sm rounded-full bg-card hover:bg-muted"
           >
             <Filter className="h-4 w-4" />
             <span>{filterByMonth ? "Showing Selected Month" : "Showing All Months"}</span>
@@ -347,7 +347,7 @@ export default function DashboardPage() {
           animate={{ opacity: 1, scale: 1 }}
           className="flex items-center gap-4 bg-gradient-to-r from-blue-600 to-indigo-600 p-4 rounded-2xl shadow-lg shadow-blue-500/20 text-white"
         >
-          <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
+          <div className="bg-card/20 p-2.5 rounded-xl backdrop-blur-sm">
             <Sparkles className="h-6 w-6 text-blue-50" />
           </div>
           <div className="flex-1">
@@ -363,18 +363,18 @@ export default function DashboardPage() {
       {/* Metric Cards */}
       {availableMonths.length > 0 && selectedMonth && (
         <div className="grid gap-6 md:grid-cols-3">
-          <Card className="shadow-sm border-slate-200/60 bg-white hover:shadow-md transition-shadow">
+          <Card className="shadow-sm border-border/60 bg-card hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Net Balance</span>
-                <div className="p-2 bg-slate-100 rounded-lg">
-                  <Wallet className="h-5 w-5 text-slate-700" />
+                <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Net Balance</span>
+                <div className="p-2 bg-muted rounded-lg">
+                  <Wallet className="h-5 w-5 text-foreground" />
                 </div>
               </div>
-              <div className="text-3xl font-extrabold text-slate-900">
+              <div className="text-3xl font-extrabold text-foreground">
                 ₹{monthBalance.toFixed(2)}
               </div>
-              <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                 <Calendar className="h-3.5 w-3.5" /> For {formatMonthYear(selectedMonth)}
               </p>
             </CardContent>
@@ -418,23 +418,23 @@ export default function DashboardPage() {
 
       {/* Month Navigation */}
       {availableMonths.length > 0 && selectedMonth && (
-        <div className="flex items-center justify-between bg-white border border-slate-200 rounded-2xl p-2 shadow-sm">
+        <div className="flex items-center justify-between bg-card border border-border rounded-2xl p-2 shadow-sm">
           <Button
             variant="ghost"
             disabled={currentMonthIdx >= availableMonths.length - 1}
             onClick={() => setSelectedMonth(availableMonths[currentMonthIdx + 1])}
-            className="rounded-xl text-slate-600 hover:bg-slate-100"
+            className="rounded-xl text-muted-foreground hover:bg-muted"
           >
             <ChevronLeft className="h-5 w-5 mr-1" /> Prev
           </Button>
-          <span className="font-bold text-slate-800 text-lg">
+          <span className="font-bold text-foreground text-lg">
             {formatMonthYear(selectedMonth)}
           </span>
           <Button
             variant="ghost"
             disabled={currentMonthIdx <= 0}
             onClick={() => setSelectedMonth(availableMonths[currentMonthIdx - 1])}
-            className="rounded-xl text-slate-600 hover:bg-slate-100"
+            className="rounded-xl text-muted-foreground hover:bg-muted"
           >
             Next <ChevronRight className="h-5 w-5 ml-1" />
           </Button>
@@ -445,9 +445,9 @@ export default function DashboardPage() {
       {availableMonths.length > 0 && selectedMonth && (
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Cash Flow Area Chart */}
-          <Card className="shadow-sm border-slate-200">
-            <CardHeader className="border-b border-slate-100 pb-4">
-              <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <Card className="shadow-sm border-border">
+            <CardHeader className="border-b border-border pb-4">
+              <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-blue-500" />
                 Cash Flow
               </CardTitle>
@@ -479,16 +479,16 @@ export default function DashboardPage() {
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="flex h-full items-center justify-center text-slate-400">No data for this month</div>
+                  <div className="flex h-full items-center justify-center text-muted-foreground">No data for this month</div>
                 )}
               </div>
             </CardContent>
           </Card>
 
           {/* Expenses Doughnut Chart */}
-          <Card className="shadow-sm border-slate-200">
-            <CardHeader className="border-b border-slate-100 pb-4">
-              <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <Card className="shadow-sm border-border">
+            <CardHeader className="border-b border-border pb-4">
+              <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                 <PieChart className="h-5 w-5 text-purple-500" />
                 Spending by Category
               </CardTitle>
@@ -523,7 +523,7 @@ export default function DashboardPage() {
                       </PieChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="flex h-full items-center justify-center text-slate-400">No expenses recorded</div>
+                    <div className="flex h-full items-center justify-center text-muted-foreground">No expenses recorded</div>
                   )}
                 </div>
                 
@@ -537,11 +537,11 @@ export default function DashboardPage() {
                             className="w-3 h-3 rounded-full" 
                             style={{ backgroundColor: CATEGORY_COLORS[d.name] || CATEGORY_COLORS["Other"] }} 
                           />
-                          <span className="text-sm font-semibold text-slate-700">{d.name}</span>
+                          <span className="text-sm font-semibold text-foreground">{d.name}</span>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-bold text-slate-900">₹{d.value.toFixed(2)}</p>
-                          <p className="text-xs text-slate-500">{percentage}%</p>
+                          <p className="text-sm font-bold text-foreground">₹{d.value.toFixed(2)}</p>
+                          <p className="text-xs text-muted-foreground">{percentage}%</p>
                         </div>
                       </div>
                     )
@@ -557,14 +557,14 @@ export default function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Col: Activity Feed */}
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-xl font-bold text-slate-900">Recent Activity</h2>
+          <h2 className="text-xl font-bold text-foreground">Recent Activity</h2>
           
           {sortedMonthsKeys.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500">
-              <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Receipt className="h-8 w-8 text-slate-400" />
+            <div className="bg-card rounded-2xl border border-border p-12 text-center text-muted-foreground">
+              <div className="bg-muted w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Receipt className="h-8 w-8 text-muted-foreground" />
               </div>
-              <p className="font-semibold text-slate-900 mb-1">No transactions found</p>
+              <p className="font-semibold text-foreground mb-1">No transactions found</p>
               <p className="text-sm">Add some transactions to see your activity feed.</p>
             </div>
           ) : (
@@ -574,10 +574,10 @@ export default function DashboardPage() {
 
               return (
                 <div key={mKey} className="space-y-3">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 pl-1 mt-6 mb-2">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground pl-1 mt-6 mb-2">
                     {formatMonthYear(mKey)}
                   </h3>
-                  <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                  <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
                     {txList.map((tx, idx) => {
                       const isCredit = (tx.type || "debit").toLowerCase() === "credit"
                       const IconComponent = CATEGORY_ICONS[tx.category] || CATEGORY_ICONS["Other"]
@@ -585,21 +585,21 @@ export default function DashboardPage() {
                       return (
                         <div
                           key={tx.id || idx}
-                          className="group flex items-center justify-between p-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-all cursor-pointer"
+                          className="group flex items-center justify-between p-4 border-b border-border last:border-0 hover:bg-muted transition-all cursor-pointer"
                         >
                           <div className="flex items-center gap-4">
                             <div
                               className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
-                                isCredit ? "bg-emerald-100 text-emerald-600" : "bg-slate-100 text-slate-600"
+                                isCredit ? "bg-emerald-100 text-emerald-600" : "bg-muted text-muted-foreground"
                               }`}
                             >
                               {isCredit ? <ArrowDownLeft className="h-6 w-6" /> : <IconComponent className="h-6 w-6" />}
                             </div>
                             <div>
-                              <p className="text-base font-bold text-slate-900">
+                              <p className="text-base font-bold text-foreground">
                                 {tx.merchant}
                               </p>
-                              <p className="text-sm text-slate-500 flex items-center gap-2">
+                              <p className="text-sm text-muted-foreground flex items-center gap-2">
                                 <span className={`w-2 h-2 rounded-full ${isCredit ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
                                 {isCredit ? "Income" : tx.category} • {tx.date}
                               </p>
@@ -609,7 +609,7 @@ export default function DashboardPage() {
                           <div className="flex items-center gap-4">
                             <span
                               className={`font-extrabold text-base ${
-                                isCredit ? "text-emerald-600" : "text-slate-900"
+                                isCredit ? "text-emerald-600" : "text-foreground"
                               }`}
                             >
                               {isCredit ? "+" : "-"}₹{Number(tx.amount).toFixed(2)}
@@ -620,7 +620,7 @@ export default function DashboardPage() {
                                 variant="ghost"
                                 size="icon-sm"
                                 onClick={() => handleOpenEdit(tx)}
-                                className="text-slate-400 hover:text-blue-600 h-8 w-8 rounded-full bg-white shadow-sm border border-slate-200"
+                                className="text-muted-foreground hover:text-blue-600 h-8 w-8 rounded-full bg-card shadow-sm border border-border"
                               >
                                 <Pencil className="h-3.5 w-3.5" />
                               </Button>
@@ -631,7 +631,7 @@ export default function DashboardPage() {
                                   setSelectedTx(tx)
                                   setDeleteConfirmOpen(true)
                                 }}
-                                className="text-slate-400 hover:text-red-600 h-8 w-8 rounded-full bg-white shadow-sm border border-slate-200"
+                                className="text-muted-foreground hover:text-red-600 h-8 w-8 rounded-full bg-card shadow-sm border border-border"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </Button>
@@ -649,7 +649,7 @@ export default function DashboardPage() {
 
         {/* Right Col: Upcoming Bills */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-slate-900">Upcoming Bills</h2>
+          <h2 className="text-xl font-bold text-foreground">Upcoming Bills</h2>
           {upcomingReminders.length > 0 ? (
             <div className="space-y-3">
               {upcomingReminders.map((bill: any, idx: number) => {
@@ -672,7 +672,7 @@ export default function DashboardPage() {
                     
                     <div className="flex justify-between items-start">
                       <div className="overflow-hidden pr-2">
-                        <p className="font-bold text-sm text-slate-900 truncate">
+                        <p className="font-bold text-sm text-foreground truncate">
                           {bill.name}
                         </p>
                         <p
@@ -685,7 +685,7 @@ export default function DashboardPage() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-extrabold text-slate-900">₹{Number(bill.amount).toFixed(2)}</p>
+                        <p className="font-extrabold text-foreground">₹{Number(bill.amount).toFixed(2)}</p>
                       </div>
                     </div>
                     
@@ -704,7 +704,7 @@ export default function DashboardPage() {
               })}
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-500 shadow-sm">
+            <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground shadow-sm">
               <CheckCircle2 className="h-8 w-8 text-emerald-400 mx-auto mb-2" />
               <p className="text-sm">No bills due in the next 14 days.</p>
             </div>
@@ -720,7 +720,7 @@ export default function DashboardPage() {
           </DialogHeader>
 
           <form onSubmit={handleEditSubmit} className="space-y-5 mt-2">
-            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+            <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl">
               <button
                 type="button"
                 onClick={() =>
@@ -732,8 +732,8 @@ export default function DashboardPage() {
                 }
                 className={`py-2 text-sm font-bold rounded-lg transition-all ${
                   editFormData.type === "debit"
-                    ? "bg-white text-rose-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-card text-rose-600 shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 Expense (-)
@@ -749,8 +749,8 @@ export default function DashboardPage() {
                 }
                 className={`py-2 text-sm font-bold rounded-lg transition-all ${
                   editFormData.type === "credit"
-                    ? "bg-white text-emerald-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-card text-emerald-600 shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 Income (+)
@@ -758,7 +758,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="font-semibold text-slate-700">
+              <Label className="font-semibold text-foreground">
                 {editFormData.type === "credit" ? "Payer / Source" : "Merchant"}
               </Label>
               <Input
@@ -773,7 +773,7 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="font-semibold text-slate-700">Amount (₹)</Label>
+                <Label className="font-semibold text-foreground">Amount (₹)</Label>
                 <Input
                   required
                   type="number"
@@ -788,7 +788,7 @@ export default function DashboardPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="font-semibold text-slate-700">Date</Label>
+                <Label className="font-semibold text-foreground">Date</Label>
                 <Input
                   required
                   type="date"
@@ -802,7 +802,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="font-semibold text-slate-700">Category</Label>
+              <Label className="font-semibold text-foreground">Category</Label>
               <select
                 className="flex h-10 w-full rounded-xl border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-blue-500"
                 value={editFormData.category}

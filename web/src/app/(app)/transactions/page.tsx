@@ -136,8 +136,8 @@ export default function TransactionsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Transactions</h1>
-          <p className="text-slate-500 mt-1">Manage and edit your complete financial history.</p>
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Transactions</h1>
+          <p className="text-muted-foreground mt-1">Manage and edit your complete financial history.</p>
         </div>
         <Button onClick={() => setAddDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md">
           <Plus className="h-4 w-4 mr-1.5" />
@@ -146,12 +146,12 @@ export default function TransactionsPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4">
+      <div className="bg-card p-4 rounded-2xl border border-border shadow-sm flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="Search merchants or categories..." 
-            className="pl-9 rounded-xl bg-slate-50 border-slate-200 focus:bg-white transition-colors"
+            className="pl-9 rounded-xl bg-muted border-border focus:bg-card transition-colors"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -182,8 +182,8 @@ export default function TransactionsPage() {
       </div>
 
       {/* Advanced Data Table / List */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="hidden md:grid grid-cols-12 gap-4 p-4 bg-slate-50 border-b border-slate-100 text-xs font-bold uppercase tracking-wider text-slate-500">
+      <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="hidden md:grid grid-cols-12 gap-4 p-4 bg-muted border-b border-border text-xs font-bold uppercase tracking-wider text-muted-foreground">
           <div className="col-span-2">Date</div>
           <div className="col-span-4">Merchant</div>
           <div className="col-span-2">Category</div>
@@ -197,11 +197,11 @@ export default function TransactionsPage() {
           </div>
         ) : filteredTransactions.length === 0 ? (
           <div className="py-16 flex flex-col items-center text-center px-4">
-            <div className="bg-slate-50 p-6 rounded-full mb-4">
+            <div className="bg-muted p-6 rounded-full mb-4">
               <FileText className="h-12 w-12 text-slate-300" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">No transactions found</h3>
-            <p className="text-slate-500 max-w-sm mb-6">We couldn't find any transactions matching your current filters.</p>
+            <h3 className="text-xl font-bold text-foreground mb-2">No transactions found</h3>
+            <p className="text-muted-foreground max-w-sm mb-6">We couldn't find any transactions matching your current filters.</p>
             <Button variant="outline" onClick={() => { setSearchQuery(""); setTypeFilter("all") }}>Clear Filters</Button>
           </div>
         ) : (
@@ -215,11 +215,11 @@ export default function TransactionsPage() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     key={tx.id} 
-                    className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center hover:bg-slate-50/80 transition-colors group"
+                    className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center hover:bg-muted/80 transition-colors group"
                   >
                     <div className="col-span-2 flex flex-row md:flex-col justify-between md:justify-start">
-                      <span className="text-sm font-semibold text-slate-900 md:hidden">Date</span>
-                      <span className="text-sm text-slate-600 font-medium">{tx.date}</span>
+                      <span className="text-sm font-semibold text-foreground md:hidden">Date</span>
+                      <span className="text-sm text-muted-foreground font-medium">{tx.date}</span>
                     </div>
 
                     <div className="col-span-4 flex items-center gap-3">
@@ -227,29 +227,29 @@ export default function TransactionsPage() {
                         {isCredit ? <ArrowDownLeft className="h-5 w-5" /> : <ArrowUpRight className="h-5 w-5" />}
                       </div>
                       <div className="truncate">
-                        <p className="font-bold text-slate-900 truncate">{tx.merchant}</p>
-                        <p className="text-xs text-slate-500 md:hidden">{tx.category}</p>
+                        <p className="font-bold text-foreground truncate">{tx.merchant}</p>
+                        <p className="text-xs text-muted-foreground md:hidden">{tx.category}</p>
                       </div>
                     </div>
 
                     <div className="col-span-2 hidden md:block">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
                         {tx.category}
                       </span>
                     </div>
 
                     <div className="col-span-2 flex flex-row md:flex-col justify-between md:justify-start text-right">
-                      <span className="text-sm font-semibold text-slate-900 md:hidden">Amount</span>
-                      <span className={`font-extrabold text-base ${isCredit ? 'text-emerald-600' : 'text-slate-900'}`}>
+                      <span className="text-sm font-semibold text-foreground md:hidden">Amount</span>
+                      <span className={`font-extrabold text-base ${isCredit ? 'text-emerald-600' : 'text-foreground'}`}>
                         {isCredit ? "+" : "-"}₹{Number(tx.amount).toFixed(2)}
                       </span>
                     </div>
 
                     <div className="col-span-2 flex justify-end gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(tx)} className="h-9 w-9 rounded-full hover:bg-white hover:text-blue-600 shadow-sm border border-transparent hover:border-slate-200">
+                      <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(tx)} className="h-9 w-9 rounded-full hover:bg-card hover:text-blue-600 shadow-sm border border-transparent hover:border-border">
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => { setSelectedTx(tx); setDeleteConfirmOpen(true); }} className="h-9 w-9 rounded-full hover:bg-white hover:text-red-600 shadow-sm border border-transparent hover:border-slate-200">
+                      <Button variant="ghost" size="icon" onClick={() => { setSelectedTx(tx); setDeleteConfirmOpen(true); }} className="h-9 w-9 rounded-full hover:bg-card hover:text-red-600 shadow-sm border border-transparent hover:border-border">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -293,18 +293,18 @@ export default function TransactionsPage() {
           </div>
 
           <form onSubmit={handleAddSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+            <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl">
               <button
                 type="button"
                 onClick={() => setFormData((prev) => ({ ...prev, type: "debit", category: EXPENSE_CATEGORIES[0] }))}
-                className={`py-2 text-sm font-bold rounded-lg transition-all ${formData.type === "debit" ? "bg-white text-rose-600 shadow-sm" : "text-slate-500"}`}
+                className={`py-2 text-sm font-bold rounded-lg transition-all ${formData.type === "debit" ? "bg-card text-rose-600 shadow-sm" : "text-muted-foreground"}`}
               >
                 Expense (-)
               </button>
               <button
                 type="button"
                 onClick={() => setFormData((prev) => ({ ...prev, type: "credit", category: INCOME_CATEGORIES[0] }))}
-                className={`py-2 text-sm font-bold rounded-lg transition-all ${formData.type === "credit" ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500"}`}
+                className={`py-2 text-sm font-bold rounded-lg transition-all ${formData.type === "credit" ? "bg-card text-emerald-600 shadow-sm" : "text-muted-foreground"}`}
               >
                 Income (+)
               </button>
@@ -337,9 +337,9 @@ export default function TransactionsPage() {
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader><DialogTitle className="text-xl font-bold">Edit Transaction</DialogTitle></DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
-              <button type="button" onClick={() => setEditFormData((prev) => ({ ...prev, type: "debit", category: EXPENSE_CATEGORIES[0] }))} className={`py-2 text-sm font-bold rounded-lg transition-all ${editFormData.type === "debit" ? "bg-white text-rose-600 shadow-sm" : "text-slate-500"}`}>Expense (-)</button>
-              <button type="button" onClick={() => setEditFormData((prev) => ({ ...prev, type: "credit", category: INCOME_CATEGORIES[0] }))} className={`py-2 text-sm font-bold rounded-lg transition-all ${editFormData.type === "credit" ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500"}`}>Income (+)</button>
+            <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl">
+              <button type="button" onClick={() => setEditFormData((prev) => ({ ...prev, type: "debit", category: EXPENSE_CATEGORIES[0] }))} className={`py-2 text-sm font-bold rounded-lg transition-all ${editFormData.type === "debit" ? "bg-card text-rose-600 shadow-sm" : "text-muted-foreground"}`}>Expense (-)</button>
+              <button type="button" onClick={() => setEditFormData((prev) => ({ ...prev, type: "credit", category: INCOME_CATEGORIES[0] }))} className={`py-2 text-sm font-bold rounded-lg transition-all ${editFormData.type === "credit" ? "bg-card text-emerald-600 shadow-sm" : "text-muted-foreground"}`}>Income (+)</button>
             </div>
             <div className="space-y-2"><Label>{editFormData.type === "credit" ? "Payer / Source" : "Merchant"}</Label><Input required className="rounded-xl" value={editFormData.merchant} onChange={(e) => setEditFormData({ ...editFormData, merchant: e.target.value })} /></div>
             <div className="grid grid-cols-2 gap-4">

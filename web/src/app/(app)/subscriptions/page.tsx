@@ -118,8 +118,8 @@ export default function SubscriptionsPage() {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 pb-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Subscriptions</h1>
-          <p className="text-slate-500 mt-1">Track recurring expenses, renewal dates, and automate payments.</p>
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Subscriptions</h1>
+          <p className="text-muted-foreground mt-1">Track recurring expenses, renewal dates, and automate payments.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={fetchSubs} className="gap-2 rounded-full shadow-sm">
@@ -138,12 +138,12 @@ export default function SubscriptionsPage() {
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
         </div>
       ) : subscriptions.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-16 text-center shadow-sm">
+        <div className="bg-card rounded-2xl border border-border p-16 text-center shadow-sm">
           <div className="bg-indigo-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
             <CreditCard className="h-10 w-10 text-indigo-400" />
           </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">No active subscriptions</h2>
-          <p className="text-slate-500 mb-6 max-w-md mx-auto">Keep track of your Netflix, Spotify, or gym memberships by adding them here.</p>
+          <h2 className="text-xl font-bold text-foreground mb-2">No active subscriptions</h2>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">Keep track of your Netflix, Spotify, or gym memberships by adding them here.</p>
           <Button onClick={() => setAddDialogOpen(true)} className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl px-8">
             Add your first bill
           </Button>
@@ -161,7 +161,7 @@ export default function SubscriptionsPage() {
               <motion.div 
                 whileHover={{ y: -4 }}
                 key={sub.id || idx}
-                className={`relative flex flex-col justify-between p-5 rounded-2xl border bg-white shadow-sm transition-all overflow-hidden ${isOverdue ? 'border-rose-300' : isDueSoon ? 'border-amber-300' : 'border-slate-200 hover:border-indigo-300 hover:shadow-md'}`}
+                className={`relative flex flex-col justify-between p-5 rounded-2xl border bg-card shadow-sm transition-all overflow-hidden ${isOverdue ? 'border-rose-300' : isDueSoon ? 'border-amber-300' : 'border-border hover:border-indigo-300 hover:shadow-md'}`}
               >
                 {/* Glow effect for due soon */}
                 {(isOverdue || isDueSoon) && (
@@ -174,40 +174,40 @@ export default function SubscriptionsPage() {
                       <IconComponent className="h-6 w-6" />
                     </div>
                     <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon-sm" onClick={() => handleOpenEdit(sub)} className="h-8 w-8 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50">
+                      <Button variant="ghost" size="icon-sm" onClick={() => handleOpenEdit(sub)} className="h-8 w-8 rounded-full text-muted-foreground hover:text-blue-600 hover:bg-blue-50">
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon-sm" onClick={() => { setSelectedSub(sub); setDeleteConfirmOpen(true); }} className="h-8 w-8 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50">
+                      <Button variant="ghost" size="icon-sm" onClick={() => { setSelectedSub(sub); setDeleteConfirmOpen(true); }} className="h-8 w-8 rounded-full text-muted-foreground hover:text-red-600 hover:bg-red-50">
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </div>
                   
-                  <h3 className="text-xl font-extrabold text-slate-900 mb-1">{sub.name}</h3>
-                  <div className="flex items-center gap-2 mb-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    <span className="bg-slate-100 px-2 py-1 rounded-md">{sub.category}</span>
-                    <span className="bg-slate-100 px-2 py-1 rounded-md">{sub.billing_cycle}</span>
+                  <h3 className="text-xl font-extrabold text-foreground mb-1">{sub.name}</h3>
+                  <div className="flex items-center gap-2 mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="bg-muted px-2 py-1 rounded-md">{sub.category}</span>
+                    <span className="bg-muted px-2 py-1 rounded-md">{sub.billing_cycle}</span>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-slate-100">
+                <div className="mt-4 pt-4 border-t border-border">
                   <div className="flex items-end justify-between mb-4">
                     <div>
-                      <p className="text-xs text-slate-500 mb-0.5 flex items-center gap-1">
+                      <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1">
                         <CalIcon className="h-3.5 w-3.5" /> Next Payment
                       </p>
-                      <p className={`text-sm font-bold ${isOverdue ? 'text-rose-600' : isDueSoon ? 'text-amber-600' : 'text-slate-700'}`}>
+                      <p className={`text-sm font-bold ${isOverdue ? 'text-rose-600' : isDueSoon ? 'text-amber-600' : 'text-foreground'}`}>
                         {sub.next_payment_date}
                         {isOverdue && " (Overdue)"}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-black text-slate-900">₹{Number(sub.amount).toFixed(2)}</p>
+                      <p className="text-2xl font-black text-foreground">₹{Number(sub.amount).toFixed(2)}</p>
                     </div>
                   </div>
 
                   <Button 
-                    className={`w-full font-bold rounded-xl ${isOverdue || isDueSoon ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 shadow-none'}`} 
+                    className={`w-full font-bold rounded-xl ${isOverdue || isDueSoon ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-muted hover:bg-slate-200 text-foreground shadow-none'}`} 
                     onClick={() => handlePay(sub.id, sub.name)}
                   >
                     <CheckCircle2 className="h-4 w-4 mr-2" />

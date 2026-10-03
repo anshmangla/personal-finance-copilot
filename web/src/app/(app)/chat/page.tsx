@@ -222,30 +222,30 @@ export default function ChatPage() {
 
       <div className="flex justify-between items-end mb-6 px-2">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
             AI Copilot <Sparkles className="h-6 w-6 text-blue-600" />
           </h1>
-          <p className="text-sm text-slate-500 mt-1">Your intelligent financial advisor</p>
+          <p className="text-sm text-muted-foreground mt-1">Your intelligent financial advisor</p>
         </div>
 
         <Button
           variant="outline"
           size="sm"
           onClick={() => setClearConfirmOpen(true)}
-          className="text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-full font-semibold shadow-sm"
+          className="text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-full font-semibold shadow-sm"
         >
           <Trash2 className="h-4 w-4 mr-1.5" />
           New Chat
         </Button>
       </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden bg-white rounded-3xl border border-slate-200 shadow-sm relative">
+      <div className="flex-1 flex flex-col overflow-hidden bg-card rounded-3xl border border-border shadow-sm relative">
         <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar scroll-smooth">
           {loadingHistory ? (
             <div className="flex h-full items-center justify-center">
               <div className="flex flex-col items-center gap-3">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-                <span className="text-sm text-slate-500 font-medium animate-pulse">Loading history...</span>
+                <span className="text-sm text-muted-foreground font-medium animate-pulse">Loading history...</span>
               </div>
             </div>
           ) : (
@@ -266,17 +266,17 @@ export default function ChatPage() {
                         </div>
                       )}
 
-                      <div className={`relative max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 text-sm leading-relaxed shadow-sm group ${isUser ? "bg-slate-900 text-white rounded-tr-sm" : "bg-white text-slate-800 border border-slate-100 rounded-tl-sm"}`}>
+                      <div className={`relative max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 text-sm leading-relaxed shadow-sm group ${isUser ? "bg-foreground text-white rounded-tr-sm" : "bg-card text-foreground border border-border rounded-tl-sm"}`}>
                         {isUser ? (
                           <div className="whitespace-pre-wrap">{msg.content}</div>
                         ) : (
                           <>
-                            <div className="prose prose-sm prose-slate max-w-none prose-p:leading-relaxed prose-headings:font-bold prose-a:text-blue-600 prose-table:w-full prose-table:border-collapse prose-th:bg-slate-100 prose-th:p-2 prose-th:border prose-th:border-slate-200 prose-th:text-left prose-td:p-2 prose-td:border prose-td:border-slate-200 prose-strong:text-slate-900 prose-ul:my-2 prose-li:my-0 pb-1">
+                            <div className="prose prose-sm prose-slate max-w-none prose-p:leading-relaxed prose-headings:font-bold prose-a:text-blue-600 prose-table:w-full prose-table:border-collapse prose-th:bg-muted prose-th:p-2 prose-th:border prose-th:border-border prose-th:text-left prose-td:p-2 prose-td:border prose-td:border-border prose-strong:text-foreground prose-ul:my-2 prose-li:my-0 pb-1">
                               <ReactMarkdown>{msg.content}</ReactMarkdown>
                             </div>
                             <button 
                               onClick={() => handleCopy(msg.content, msg.id || '')}
-                              className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-slate-700 bg-white/80 backdrop-blur rounded-md opacity-0 group-hover:opacity-100 transition-opacity border border-slate-200 shadow-xs"
+                              className="absolute top-2 right-2 p-1.5 text-muted-foreground hover:text-foreground bg-card/80 backdrop-blur rounded-md opacity-0 group-hover:opacity-100 transition-opacity border border-border shadow-xs"
                               title="Copy to clipboard"
                             >
                               {copiedId === msg.id ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
@@ -286,7 +286,7 @@ export default function ChatPage() {
                       </div>
                       
                       {isUser && (
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 mt-1">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground mt-1">
                           <User className="h-5 w-5" />
                         </div>
                       )}
@@ -301,11 +301,11 @@ export default function ChatPage() {
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-600/20 mt-1">
                     <Bot className="h-5 w-5" />
                   </div>
-                  <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-sm p-4 shadow-sm flex items-center gap-2">
+                  <div className="bg-card border border-border rounded-2xl rounded-tl-sm p-4 shadow-sm flex items-center gap-2">
                     {isScanning ? (
                       <>
                         <Camera className="h-4 w-4 text-blue-600 animate-pulse" />
-                        <span className="text-sm font-medium text-slate-500 animate-pulse">Scanning receipt...</span>
+                        <span className="text-sm font-medium text-muted-foreground animate-pulse">Scanning receipt...</span>
                       </>
                     ) : (
                       <>
@@ -314,7 +314,7 @@ export default function ChatPage() {
                           <span className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '150ms' }} />
                           <span className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '300ms' }} />
                         </div>
-                        <span className="text-sm font-medium text-slate-500 ml-2">Thinking...</span>
+                        <span className="text-sm font-medium text-muted-foreground ml-2">Thinking...</span>
                       </>
                     )}
                   </div>
@@ -327,7 +327,7 @@ export default function ChatPage() {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 bg-white border-t border-slate-100">
+        <div className="p-4 bg-card border-t border-border">
           {!loadingHistory && messages.length <= 1 && (
             <div className="flex flex-wrap gap-2 mb-4 justify-center">
               {SUGGESTIONS.map((s, i) => (
@@ -342,14 +342,14 @@ export default function ChatPage() {
             </div>
           )}
 
-          <div className="flex items-end gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200 focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all">
+          <div className="flex items-end gap-2 bg-muted p-2 rounded-2xl border border-border focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all">
             <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={onFileSelect} />
             <Button
               variant="ghost"
               size="icon"
               disabled={loading || isScanning}
               onClick={() => fileInputRef.current?.click()}
-              className="shrink-0 h-10 w-10 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-white"
+              className="shrink-0 h-10 w-10 rounded-xl text-muted-foreground hover:text-blue-600 hover:bg-card"
               title="Upload Receipt"
             >
               <Camera className="h-5 w-5" />
@@ -378,7 +378,7 @@ export default function ChatPage() {
               <Send className="h-4 w-4" />
             </Button>
           </div>
-          <p className="text-center text-[10px] text-slate-400 mt-2 font-medium">
+          <p className="text-center text-[10px] text-muted-foreground mt-2 font-medium">
             AI can make mistakes. Verify important financial insights.
           </p>
         </div>
@@ -389,7 +389,7 @@ export default function ChatPage() {
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Clear Chat?</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-slate-600">Are you sure you want to delete all messages in this conversation?</p>
+          <p className="text-sm text-muted-foreground">Are you sure you want to delete all messages in this conversation?</p>
           <div className="flex justify-end gap-3 mt-4">
             <Button variant="outline" className="rounded-xl" onClick={() => setClearConfirmOpen(false)}>Cancel</Button>
             <Button variant="destructive" className="bg-red-600 hover:bg-red-700 text-white rounded-xl" onClick={handleClearHistory}>Clear</Button>

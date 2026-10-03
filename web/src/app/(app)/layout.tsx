@@ -87,10 +87,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (!authChecked) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+      <div className="flex min-h-screen items-center justify-center bg-muted">
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent shadow-lg" />
-          <div className="text-sm font-semibold text-slate-500 animate-pulse tracking-wide">
+          <div className="text-sm font-semibold text-muted-foreground animate-pulse tracking-wide">
             Loading your financial copilot...
           </div>
         </div>
@@ -116,15 +116,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-slate-50 to-slate-100/80 font-sans selection:bg-blue-100 selection:text-blue-900">
-        <Sidebar className="border-r border-slate-200/60 bg-white/60 backdrop-blur-xl shadow-[4px_0_24px_rgba(0,0,0,0.01)]">
-          <SidebarHeader className="p-5 border-b border-slate-100/60">
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-slate-50 to-slate-100/80 dark:from-slate-950 dark:to-slate-900/80 font-sans selection:bg-blue-100 selection:text-blue-900">
+        <Sidebar className="border-r border-border/60 bg-card/60 dark:bg-slate-950/60 backdrop-blur-xl shadow-[4px_0_24px_rgba(0,0,0,0.01)]">
+          <SidebarHeader className="p-5 border-b border-border/60">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20">
                 <Wallet className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="text-base font-extrabold text-slate-900 leading-tight tracking-tight">
+                <h2 className="text-base font-extrabold text-foreground leading-tight tracking-tight">
                   Finance Copilot
                 </h2>
                 <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider">AI Assistant</p>
@@ -134,7 +134,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
           <SidebarContent className="p-3 mt-2">
             <SidebarGroup>
-              <SidebarGroupLabel className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-3">
+              <SidebarGroupLabel className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest px-3 mb-3">
                 Main Menu
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -157,12 +157,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             className={`w-full justify-start gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all relative z-10 ${
                               isActive
                                 ? "text-blue-700 font-bold"
-                                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/50"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                             }`}
                           >
                             <item.icon
                               className={`h-4 w-4 transition-colors ${
-                                isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"
+                                isActive ? "text-blue-600" : "text-muted-foreground group-hover:text-muted-foreground"
                               }`}
                             />
                             <span>{item.title}</span>
@@ -176,8 +176,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </SidebarGroup>
           </SidebarContent>
 
-          <SidebarFooter className="p-4 border-t border-slate-100/60 bg-white/40 backdrop-blur-md">
-            <div className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-100/50 transition-colors border border-transparent hover:border-slate-200/50">
+          <SidebarFooter className="p-4 border-t border-border/60 bg-card/40 dark:bg-slate-950/40 backdrop-blur-md">
+            <div className="flex items-center justify-between p-2 rounded-xl hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50">
               <div className="flex items-center gap-3 overflow-hidden">
                 {user?.picture ? (
                   <img
@@ -191,10 +191,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   </div>
                 )}
                 <div className="overflow-hidden">
-                  <p className="text-sm font-bold text-slate-900 truncate">
+                  <p className="text-sm font-bold text-foreground truncate">
                     {user?.name || "User"}
                   </p>
-                  <p className="text-xs text-slate-500 truncate font-medium">
+                  <p className="text-xs text-muted-foreground truncate font-medium">
                     {user?.email || ""}
                   </p>
                 </div>
@@ -204,7 +204,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 size="icon"
                 onClick={handleSignOut}
                 title="Sign Out"
-                className="text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full h-8 w-8 shrink-0"
+                className="text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-full h-8 w-8 shrink-0"
               >
                 <LogOut className="h-4 w-4" />
               </Button>
@@ -215,11 +215,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="flex flex-1 flex-col overflow-hidden relative">
           
           {/* Top Bar with Glassmorphism */}
-          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200/60 bg-white/70 px-4 md:px-8 backdrop-blur-xl">
+          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/60 bg-card/70 dark:bg-slate-950/70 px-4 md:px-8 backdrop-blur-xl">
             <div className="flex items-center gap-4">
-              <SidebarTrigger className="text-slate-500 hover:text-slate-900" />
+              <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
               <div className="hidden sm:flex flex-col">
-                <span className="text-sm font-bold text-slate-800">
+                <span className="text-sm font-bold text-foreground">
                   {getGreeting()}, {firstName}! 👋
                 </span>
               </div>
@@ -231,7 +231,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 text-xs font-bold rounded-full shadow-sm bg-white hover:bg-slate-50 border-slate-200 transition-all hover:shadow"
+                className="gap-2 text-xs font-bold rounded-full shadow-sm bg-card hover:bg-muted border-border transition-all hover:shadow"
                 onClick={() => setExportModalOpen(true)}
               >
                 <Download className="h-3.5 w-3.5 text-blue-600" />
