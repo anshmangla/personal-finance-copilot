@@ -517,7 +517,7 @@ export default function DashboardPage() {
                           ))}
                         </Pie>
                         <Tooltip 
-                          formatter={(value: number) => `₹${value.toFixed(2)}`} 
+                          formatter={(value: any) => `₹${value.toFixed(2)}`} 
                           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 14px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
                         />
                       </PieChart>
