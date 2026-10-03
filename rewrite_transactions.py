@@ -1,3 +1,8 @@
+import os
+
+file_path = "web/src/app/(app)/transactions/page.tsx"
+
+code = """\
 "use client"
 
 import { useEffect, useState, useRef } from "react"
@@ -373,3 +378,9 @@ export default function TransactionsPage() {
     </motion.div>
   )
 }
+"""
+
+with open(file_path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Transactions rewrite complete.")

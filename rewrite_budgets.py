@@ -1,3 +1,8 @@
+import os
+
+file_path = "web/src/app/(app)/budgets/page.tsx"
+
+code = """\
 "use client"
 
 import { useEffect, useState } from "react"
@@ -344,3 +349,9 @@ export default function BudgetsPage() {
     </motion.div>
   )
 }
+"""
+
+with open(file_path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Budgets rewrite complete.")

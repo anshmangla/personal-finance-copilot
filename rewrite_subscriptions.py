@@ -1,3 +1,8 @@
+import os
+
+file_path = "web/src/app/(app)/subscriptions/page.tsx"
+
+code = """\
 "use client"
 
 import { useEffect, useState } from "react"
@@ -274,3 +279,9 @@ export default function SubscriptionsPage() {
     </motion.div>
   )
 }
+"""
+
+with open(file_path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Subscriptions rewrite complete.")
