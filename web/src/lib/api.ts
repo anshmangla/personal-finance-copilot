@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
-  'https://finance-copilot-backend-p7p1.onrender.com';
+  'https://backend-production-4ca2.up.railway.app';
 
 export const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||

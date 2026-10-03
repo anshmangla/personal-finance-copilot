@@ -92,7 +92,7 @@ flowchart TD
         F[Budgets, Goals & Reports]
     end
 
-    subgraph Backend["FastAPI Server (Deployed on Render)"]
+    subgraph Backend["FastAPI Server (Deployed on Railway)"]
         G[Auth Service - JWT & Google OAuth]
         H[REST API Endpoints]
         I[LangGraph ReAct Agent]
@@ -163,7 +163,7 @@ personal_finance_copilot/
 
 ## ⚙️ Environment Variables
 
-Create a `.env` file in the `backend/` directory (or add them as Environment Variables in your Render / deployment dashboard):
+Create a `.env` file in the `backend/` directory (or add them as Environment Variables in your Railway / deployment dashboard):
 
 ```env
 # Neon Serverless PostgreSQL Database Connection String
@@ -236,7 +236,7 @@ ENCRYPTION_KEY=your_generated_fernet_key_here
    In `frontend/lib/services/api_client.dart`:
    - For local emulator: `http://10.0.2.2:8000`
    - For local device / LAN: `http://<your-lan-ip>:8000`
-   - For cloud backend (Render): `https://personal-finance-copilot-m427.onrender.com`
+   - For cloud backend (Railway): `https://backend-production-4ca2.up.railway.app`
 
 4. **Launch the application**:
    ```bash
