@@ -418,10 +418,10 @@ def export_excel(
         # Sheet 2: Transactions
         df.to_excel(writer, sheet_name="Transactions", index=False)
         
-        workbook = writer.book
-        ws_tx = writer.sheets["Transactions"]
-        ws_tx.freeze_panes = "A2"
-        ws_tx.auto_filter.ref = ws_tx.dimensions
+        
+        
+        
+        
 
     excel_bytes = output.getvalue()
     return Response(
