@@ -438,7 +438,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     final allTransactions = (summaryData?['transactions'] as List<dynamic>?) ?? [];
-    final availableMonths = _extractMonths(allTransactions);
+    final availableMonths = List<String>.from(summaryData?['available_months'] ?? []);
 
     // Compute month-specific data
     double monthIncome = 0;
@@ -866,7 +866,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       onTap: () {
                         setState(() {
                           _filterBySelectedMonth = !_filterBySelectedMonth;
+                          isLoading = true;
                         });
+                        fetchSummary();
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
