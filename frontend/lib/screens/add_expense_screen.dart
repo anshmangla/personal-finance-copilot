@@ -60,6 +60,14 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       builder: (ctx) => SafeArea(
         child: Wrap(
           children: [
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'Privacy Notice: Receipts are securely processed by a third-party AI provider to extract transaction details.',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ),
             ListTile(
               leading: const Icon(Icons.camera_alt),
               title: const Text('Take a Photo'),

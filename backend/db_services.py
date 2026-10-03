@@ -302,10 +302,9 @@ def get_budgets(db: Session, user_id: str) -> Dict[str, float]:
     return {b.category: float(b.limit_amount) for b in budgets}
 
 def set_budget(db: Session, user_id: str, category: str, limit: float) -> Dict[str, float]:
-    budget = db.query(Budget).filter(
-        Budget.user_id == user_id,
-        Budget.category == category
-    ).first()
+    budgets = db.query(Budget).filter(Budget.user_id == user_id).all()
+    budget = next((b for b in budgets if b.category == category), None)
+    
     if budget:
         budget.limit_amount = limit
     else:

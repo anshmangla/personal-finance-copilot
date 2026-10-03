@@ -181,12 +181,26 @@ export const clearChatHistory = async () => {
 };
 
 // Exports
-export const getExportCsvUrl = () => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : '';
-  return `${API_URL}/export/csv${token ? `?token=${token}` : ''}`;
+export const downloadExportCsv = async () => {
+  const response = await api.get('/export/csv', { responseType: 'blob' });
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'transactions.csv');
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
 };
 
-export const getExportPdfUrl = () => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : '';
-  return `${API_URL}/export/pdf${token ? `?token=${token}` : ''}`;
+export const downloadExportPdf = async () => {
+  const response = await api.get('/export/pdf', { responseType: 'blob' });
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'summary_report.pdf');
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
 };

@@ -4,12 +4,15 @@ import csv
 from typing import Optional
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile
+from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from fpdf import FPDF
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from database import get_db, init_db
 from models import User
@@ -21,11 +24,16 @@ import ocr_service
 
 app = FastAPI(title="Finance Copilot API")
 
-# Setup CORS
+# Rate limiting setup
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Setup CORS securely
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["*"], # Since it's a mobile app, any origin is fine, but credentials should be false for wildcard
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -44,44 +52,44 @@ class DevLoginReq(BaseModel):
     name: Optional[str] = "Test User"
 
 class TransactionReq(BaseModel):
-    amount: float
-    merchant: str
-    category: str
-    type: str = "debit"
-    date: Optional[str] = None
+    amount: float = Field(..., gt=0)
+    merchant: str = Field(..., max_length=255)
+    category: str = Field(..., max_length=100)
+    type: str = Field(default="debit", pattern="^(debit|credit)$")
+    date: Optional[str] = Field(default=None, max_length=20)
 
 class EditTransactionReq(BaseModel):
     id: str
-    amount: float
-    merchant: str
-    category: str
-    type: str = "debit"
-    date: Optional[str] = None
+    amount: float = Field(..., gt=0)
+    merchant: str = Field(..., max_length=255)
+    category: str = Field(..., max_length=100)
+    type: str = Field(default="debit", pattern="^(debit|credit)$")
+    date: Optional[str] = Field(default=None, max_length=20)
 
 class SubscriptionReq(BaseModel):
-    name: str
-    amount: float
-    category: str
-    billing_cycle: str
-    next_payment_date: str
+    name: str = Field(..., max_length=255)
+    amount: float = Field(..., gt=0)
+    category: str = Field(..., max_length=100)
+    billing_cycle: str = Field(..., pattern="^(monthly|yearly)$")
+    next_payment_date: str = Field(..., max_length=20)
 
 class EditSubscriptionReq(BaseModel):
     id: str
-    name: str
-    amount: float
-    category: str
-    billing_cycle: str
-    next_payment_date: str
+    name: str = Field(..., max_length=255)
+    amount: float = Field(..., gt=0)
+    category: str = Field(..., max_length=100)
+    billing_cycle: str = Field(..., pattern="^(monthly|yearly)$")
+    next_payment_date: str = Field(..., max_length=20)
 
 class BudgetReq(BaseModel):
-    category: str
-    limit: float
+    category: str = Field(..., max_length=100)
+    limit: float = Field(..., gt=0)
 
 class GoalReq(BaseModel):
-    goal: str
+    goal: str = Field(..., max_length=500)
 
 class ChatReq(BaseModel):
-    query: str
+    query: str = Field(..., max_length=2000)
 
 # ---------------- AUTH ENDPOINTS ---------------- #
 
@@ -169,7 +177,9 @@ def get_me(current_user: User = Depends(get_current_user)):
 # ---------------- TRANSACTIONS ---------------- #
 
 @app.post("/scan_receipt")
+@limiter.limit("5/minute")
 async def scan_receipt(
+    request: Request,
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user)
 ):
@@ -180,12 +190,22 @@ async def scan_receipt(
         raise HTTPException(status_code=400, detail=f"File must be an image. Received content-type: {file.content_type}")
         
     try:
-        file_bytes = await file.read()
+        # Prevent OOM by strictly limiting file size to 5MB chunk by chunk
+        file_bytes = b""
+        MAX_FILE_SIZE = 5 * 1024 * 1024
+        
+        while chunk := await file.read(1024 * 1024):  # read 1MB at a time
+            file_bytes += chunk
+            if len(file_bytes) > MAX_FILE_SIZE:
+                raise HTTPException(status_code=413, detail="File too large. Maximum size is 5MB.")
+                
         parsed_data = ocr_service.scan_receipt_image(file_bytes)
         return {
             "status": "success",
             "data": parsed_data
         }
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"OCR Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -362,6 +382,16 @@ def export_csv(
     db: Session = Depends(get_db)
 ):
     df = db_services.get_transactions_df(db, current_user.id)
+    
+    # Sanitize dataframe to prevent CSV Injection in Excel/Google Sheets
+    def sanitize_val(val):
+        if isinstance(val, str) and val and val[0] in ('=', '+', '-', '@', '\t', '\r'):
+            return "'" + val
+        return val
+        
+    for col in df.select_dtypes(include=['object']).columns:
+        df[col] = df[col].apply(sanitize_val)
+        
     output = io.StringIO()
     df.to_csv(output, index=False)
     csv_bytes = output.getvalue().encode("utf-8")
@@ -424,7 +454,9 @@ def clear_chat_history_endpoint(
     return {"status": "success", "message": "Chat history and memory cleared."}
 
 @app.post("/chat")
+@limiter.limit("15/minute")
 def chat(
+    request: Request,
     req: ChatReq,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)

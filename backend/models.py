@@ -12,6 +12,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from database import Base
+from crypto import EncryptedString, EncryptedFloat
 
 class User(Base):
     __tablename__ = "users"
@@ -36,10 +37,10 @@ class Transaction(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4())[:8])
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    amount = Column(Float, nullable=False)
-    merchant = Column(String(255), nullable=False)
-    category = Column(String(100), nullable=False, index=True)
-    type = Column(String(20), default="debit", nullable=False)  # "debit" or "credit"
+    amount = Column(EncryptedFloat, nullable=False)
+    merchant = Column(EncryptedString, nullable=False)
+    category = Column(EncryptedString, nullable=False, index=False)
+    type = Column(String(20), default="debit", nullable=False)  # "debit" or "credit" - not PII usually
     date = Column(String(20), nullable=False, index=True)       # "YYYY-MM-DD"
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -51,9 +52,9 @@ class Subscription(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4())[:8])
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    name = Column(String(255), nullable=False)
-    amount = Column(Float, nullable=False)
-    category = Column(String(100), default="Entertainment", nullable=False)
+    name = Column(EncryptedString, nullable=False)
+    amount = Column(EncryptedFloat, nullable=False)
+    category = Column(EncryptedString, default="Entertainment", nullable=False)
     billing_cycle = Column(String(50), default="monthly", nullable=False)  # "monthly" or "yearly"
     next_payment_date = Column(String(20), nullable=False)                 # "YYYY-MM-DD"
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -66,15 +67,11 @@ class Budget(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    category = Column(String(100), nullable=False)
-    limit_amount = Column(Float, nullable=False)
+    category = Column(EncryptedString, nullable=False)
+    limit_amount = Column(EncryptedFloat, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="budgets")
-
-    __table_args__ = (
-        UniqueConstraint("user_id", "category", name="uq_user_category_budget"),
-    )
 
 
 class Goal(Base):
@@ -82,7 +79,7 @@ class Goal(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    goal_text = Column(String(500), nullable=False)
+    goal_text = Column(EncryptedString, nullable=False)
     is_completed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -94,7 +91,7 @@ class Habit(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    habit_text = Column(String(500), nullable=False)
+    habit_text = Column(EncryptedString, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="habits")
@@ -106,7 +103,7 @@ class ChatMessage(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     role = Column(String(20), nullable=False)  # "user" or "assistant"
-    content = Column(String, nullable=False)
+    content = Column(EncryptedString, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
     user = relationship("User", back_populates="chat_messages")

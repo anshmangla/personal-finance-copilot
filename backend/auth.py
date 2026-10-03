@@ -15,11 +15,16 @@ from models import User
 
 load_dotenv()
 
-JWT_SECRET = os.getenv("JWT_SECRET", "personal_finance_copilot_dev_secret_key_123")
+JWT_SECRET = os.getenv("JWT_SECRET")
+if not JWT_SECRET:
+    raise ValueError("FATAL ERROR: JWT_SECRET environment variable is missing. This is required for secure sessions.")
+
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_DAYS = 30
 
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+if not GOOGLE_CLIENT_ID:
+    raise ValueError("FATAL ERROR: GOOGLE_CLIENT_ID environment variable is missing. This is required for secure Google OAuth.")
 
 security = HTTPBearer()
 
@@ -27,9 +32,8 @@ def verify_google_token(token: str) -> dict:
     """Verifies a Google ID token and returns the user's profile dict."""
     try:
         request = google_requests.Request()
-        # If GOOGLE_CLIENT_ID is set, verify against it; otherwise verify signature without audience check
-        audience = GOOGLE_CLIENT_ID if GOOGLE_CLIENT_ID else None
-        id_info = id_token.verify_oauth2_token(token, request, audience=audience)
+        # Strictly verify audience against our expected Client ID to prevent Confused Deputy attacks
+        id_info = id_token.verify_oauth2_token(token, request, audience=GOOGLE_CLIENT_ID)
         
         email = id_info.get("email")
         if not email:

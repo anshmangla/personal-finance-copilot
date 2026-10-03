@@ -6,8 +6,8 @@ import {
   paySubscription,
   editTransaction,
   deleteTransaction,
-  getExportCsvUrl,
-  getExportPdfUrl,
+  downloadExportCsv,
+  downloadExportPdf,
 } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -308,7 +308,7 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => window.open(getExportCsvUrl(), "_blank")}
+            onClick={() => downloadExportCsv()}
             className="gap-1.5 text-xs font-semibold"
           >
             <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
@@ -318,7 +318,7 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => window.open(getExportPdfUrl(), "_blank")}
+            onClick={() => downloadExportPdf()}
             className="gap-1.5 text-xs font-semibold"
           >
             <FileText className="h-3.5 w-3.5 text-red-600" />
