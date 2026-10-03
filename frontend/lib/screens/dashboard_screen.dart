@@ -498,10 +498,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onSelected: (value) async {
               final messenger = ScaffoldMessenger.of(context);
               try {
+                final month = _filterBySelectedMonth ? _selectedMonth : null;
                 if (value == 'excel') {
-                  await ExportService.exportExcel();
+                  await ExportService.exportExcel(month: month);
                 } else if (value == 'pdf') {
-                  await ExportService.exportPdf();
+                  await ExportService.exportPdf(month: month);
                 }
               } catch (e) {
                 if (mounted) messenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));

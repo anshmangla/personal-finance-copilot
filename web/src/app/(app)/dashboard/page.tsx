@@ -308,7 +308,7 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => downloadExportExcel()}
+            onClick={() => downloadExportExcel(filterByMonth ? selectedMonth : undefined)}
             className="gap-1.5 text-xs font-semibold"
           >
             <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
@@ -318,7 +318,7 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => downloadExportPdf()}
+            onClick={() => downloadExportPdf(filterByMonth ? selectedMonth : undefined)}
             className="gap-1.5 text-xs font-semibold"
           >
             <FileText className="h-3.5 w-3.5 text-red-600" />

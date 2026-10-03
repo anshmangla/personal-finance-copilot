@@ -8,11 +8,13 @@ import 'auth_service.dart';
 class ExportService {
   static String get baseUrl => ApiConfig.baseUrl;
 
-  static Future<void> _downloadAndOpen(String endpoint, String filename) async {
+  static Future<void> _downloadAndOpen(String endpoint, String filename, {String? month}) async {
     final token = AuthService().token;
     if (token == null) throw Exception('Not authenticated');
 
-    final url = Uri.parse('$baseUrl$endpoint');
+    final uri = Uri.parse('$baseUrl$endpoint');
+    final url = month != null ? uri.replace(queryParameters: {'month': month}) : uri;
+    
     final response = await http.get(url, headers: {
       'Authorization': 'Bearer $token',
     });
@@ -32,11 +34,11 @@ class ExportService {
     }
   }
 
-  static Future<void> exportExcel() async {
-    await _downloadAndOpen('/export/excel', 'finance_export.xlsx');
+  static Future<void> exportExcel({String? month}) async {
+    await _downloadAndOpen('/export/excel', 'finance_export.xlsx', month: month);
   }
 
-  static Future<void> exportPdf() async {
-    await _downloadAndOpen('/export/pdf', 'finance_export.pdf');
+  static Future<void> exportPdf({String? month}) async {
+    await _downloadAndOpen('/export/pdf', 'finance_export.pdf', month: month);
   }
 }

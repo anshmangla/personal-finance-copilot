@@ -181,24 +181,26 @@ export const clearChatHistory = async () => {
 };
 
 // Exports
-export const downloadExportExcel = async () => {
-  const response = await api.get('/export/excel', { responseType: 'blob' });
+export const downloadExportExcel = async (month?: string) => {
+  const params = month ? { month } : {};
+  const response = await api.get('/export/excel', { params, responseType: 'blob' });
   const url = window.URL.createObjectURL(new Blob([response.data]));
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', 'finance_export.xlsx');
+  link.setAttribute('download', month ? `finance_export_${month}.xlsx` : 'finance_export.xlsx');
   document.body.appendChild(link);
   link.click();
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
 };
 
-export const downloadExportPdf = async () => {
-  const response = await api.get('/export/pdf', { responseType: 'blob' });
+export const downloadExportPdf = async (month?: string) => {
+  const params = month ? { month } : {};
+  const response = await api.get('/export/pdf', { params, responseType: 'blob' });
   const url = window.URL.createObjectURL(new Blob([response.data]));
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', 'summary_report.pdf');
+  link.setAttribute('download', month ? `summary_report_${month}.pdf` : 'summary_report.pdf');
   document.body.appendChild(link);
   link.click();
   link.parentNode?.removeChild(link);

@@ -380,10 +380,11 @@ def delete_goal_endpoint(
 
 @app.get("/export/excel")
 def export_excel(
+    month: Optional[str] = None,
     current_user: User = Depends(get_user_from_header_or_query),
     db: Session = Depends(get_db)
 ):
-    df = db_services.get_transactions_df(db, current_user.id)
+    df = db_services.get_transactions_df(db, current_user.id, month=month)
     
     # Sanitize dataframe to prevent CSV/Excel Formula Injection
     def sanitize_val(val):
@@ -421,10 +422,11 @@ def export_excel(
 
 @app.get("/export/pdf")
 def export_pdf(
+    month: Optional[str] = None,
     current_user: User = Depends(get_user_from_header_or_query),
     db: Session = Depends(get_db)
 ):
-    df = db_services.get_transactions_df(db, current_user.id)
+    df = db_services.get_transactions_df(db, current_user.id, month=month)
     summary_data = get_summary(df)
 
     pdf = FPDF()
@@ -433,7 +435,8 @@ def export_pdf(
     # Header
     pdf.set_font("helvetica", "B", 18)
     pdf.set_text_color(0, 51, 102)
-    pdf.cell(0, 10, f"Financial Statement: {current_user.name or current_user.email}", align="C", new_x="LMARGIN", new_y="NEXT")
+    period_str = f" ({month})" if month else ""
+    pdf.cell(0, 10, f"Financial Statement{period_str}: {current_user.name or current_user.email}", align="C", new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font("helvetica", "", 10)
     pdf.set_text_color(100, 100, 100)

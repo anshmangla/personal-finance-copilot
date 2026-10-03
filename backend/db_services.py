@@ -8,9 +8,13 @@ from models import Transaction, Subscription, Budget, Goal, Habit, ChatMessage
 
 # ---------------- TRANSACTIONS ---------------- #
 
-def get_transactions_df(db: Session, user_id: str) -> pd.DataFrame:
-    """Returns all transactions for a user as a Pandas DataFrame."""
-    txs = db.query(Transaction).filter(Transaction.user_id == user_id).all()
+def get_transactions_df(db: Session, user_id: str, month: Optional[str] = None) -> pd.DataFrame:
+    """Returns all transactions for a user as a Pandas DataFrame, optionally filtered by YYYY-MM."""
+    query = db.query(Transaction).filter(Transaction.user_id == user_id)
+    if month:
+        query = query.filter(Transaction.date.startswith(month))
+    
+    txs = query.all()
     if not txs:
         return pd.DataFrame(columns=["id", "date", "amount", "merchant", "category", "type"])
     
