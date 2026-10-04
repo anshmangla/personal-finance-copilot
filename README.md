@@ -34,7 +34,7 @@ The platform offers two robust frontends:
 
 - **📸 Multimodal Receipt Scanning (Drag & Drop)**:
   - Users can upload or **drag & drop** receipt images directly into the chat interface or transaction modal.
-  - Uses Google Gemini Vision (`gemini-1.5-flash`) via the backend `/scan_receipt` endpoint to auto-extract the merchant, amount, category, and date directly into a transaction draft.
+  - Uses Groq Vision (`qwen3.8-27b`) via the backend `/scan_receipt` endpoint to auto-extract the merchant, amount, category, and date directly into a transaction draft.
 
 - **🎨 Premium UI / UX (Web)**:
   - **Glassmorphism**: Beautiful frosted-glass sidebar, modals, and sticky headers (`backdrop-blur`).
@@ -79,7 +79,7 @@ graph TD
     %% External & Cloud Infrastructure
     subgraph Cloud["Cloud Infrastructure"]
         L[(Neon Serverless PostgreSQL)]
-        M[Google Gemini LLM & Vision]
+        M[Groq Cloud LLM & Vision]
         N[Google Identity Services]
     end
 
@@ -141,8 +141,8 @@ Create a `.env` file in the `backend/` directory (or add them as Environment Var
 # Neon Serverless PostgreSQL Database Connection String
 DATABASE_URL=postgresql://<user>:<password>@<ep-pooler-id>.neon.tech/<dbname>?sslmode=require
 
-# Google Gemini API Key
-GEMINI_API_KEY=your_gemini_api_key_here
+# Groq API Key
+GROQ_API_KEY=your_GROQ_API_KEY_here
 
 # JWT Secret Key for token signing (REQUIRED for production)
 JWT_SECRET=your_super_secret_jwt_key_here
