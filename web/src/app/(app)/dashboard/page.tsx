@@ -453,7 +453,7 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="h-[250px] w-full">
+              <div className="h-[400px] md:h-[250px] w-full">
                 {areaChartData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={areaChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -494,7 +494,7 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="flex flex-col md:flex-row items-center gap-6 h-[250px]">
+              <div className="flex flex-col md:flex-row items-center gap-6 h-[400px] md:h-[250px]">
                 <div className="w-full md:w-1/2 h-full">
                   {pieData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">

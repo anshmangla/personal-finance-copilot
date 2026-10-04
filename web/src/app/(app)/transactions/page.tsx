@@ -184,11 +184,11 @@ export default function TransactionsPage() {
       {/* Advanced Data Table / List */}
       <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
         <div className="hidden md:grid grid-cols-12 gap-4 p-4 bg-muted border-b border-border text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          <div className="col-span-2">Date</div>
-          <div className="col-span-4">Merchant</div>
-          <div className="col-span-2">Category</div>
-          <div className="col-span-2 text-right">Amount</div>
-          <div className="col-span-2 text-right">Actions</div>
+          <div className="md:col-span-2">Date</div>
+          <div className="md:col-span-4">Merchant</div>
+          <div className="md:col-span-2">Category</div>
+          <div className="md:col-span-2 text-right">Amount</div>
+          <div className="md:col-span-2 text-right">Actions</div>
         </div>
 
         {loading && transactions.length === 0 ? (
@@ -217,12 +217,12 @@ export default function TransactionsPage() {
                     key={tx.id} 
                     className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center hover:bg-muted/80 transition-colors group"
                   >
-                    <div className="col-span-2 flex flex-row md:flex-col justify-between md:justify-start">
+                    <div className="md:col-span-2 flex flex-row md:flex-col justify-between md:justify-start">
                       <span className="text-sm font-semibold text-foreground md:hidden">Date</span>
                       <span className="text-sm text-muted-foreground font-medium">{tx.date}</span>
                     </div>
 
-                    <div className="col-span-4 flex items-center gap-3">
+                    <div className="md:col-span-4 flex items-center gap-3">
                       <div className={`hidden md:flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${isCredit ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400'}`}>
                         {isCredit ? <ArrowDownLeft className="h-5 w-5" /> : <ArrowUpRight className="h-5 w-5" />}
                       </div>
@@ -232,20 +232,20 @@ export default function TransactionsPage() {
                       </div>
                     </div>
 
-                    <div className="col-span-2 hidden md:block">
+                    <div className="md:col-span-2 hidden md:block">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
                         {tx.category}
                       </span>
                     </div>
 
-                    <div className="col-span-2 flex flex-row md:flex-col justify-between md:justify-start text-right">
+                    <div className="md:col-span-2 flex flex-row md:flex-col justify-between md:justify-start text-right">
                       <span className="text-sm font-semibold text-foreground md:hidden">Amount</span>
                       <span className={`font-extrabold text-base ${isCredit ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'}`}>
                         {isCredit ? "+" : "-"}₹{Number(tx.amount).toFixed(2)}
                       </span>
                     </div>
 
-                    <div className="col-span-2 flex justify-end gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                    <div className="md:col-span-2 flex justify-end gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(tx)} className="h-9 w-9 rounded-full hover:bg-card hover:text-blue-600 shadow-sm border border-transparent hover:border-border">
                         <Pencil className="h-4 w-4" />
                       </Button>
